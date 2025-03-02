@@ -5,10 +5,10 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import App from "./App";
-import Record from "./components/Record";
-import RecordList from "./components/RecordList";
 import Login from "./components/Login";
 import Register from "./components/Register";
+import Feed from "./components/Feed";
+import Profile from "./components/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
 import "./index.css";
@@ -22,7 +22,7 @@ const router = createBrowserRouter([
         path: "/",
         element: (
           <ProtectedRoute>
-            <RecordList />
+            <Feed />
           </ProtectedRoute>
         ),
       },
@@ -35,18 +35,10 @@ const router = createBrowserRouter([
         element: <Register />,
       },
       {
-        path: "/create",
+        path: "/profile/:id",
         element: (
           <ProtectedRoute>
-            <Record />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "/edit/:id",
-        element: (
-          <ProtectedRoute>
-            <Record />
+            <Profile />
           </ProtectedRoute>
         ),
       },

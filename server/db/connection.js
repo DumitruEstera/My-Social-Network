@@ -21,6 +21,6 @@ try {
   console.error(err);
 }
 
-let db = client.db("users");
+let db = client.db("my_social_network");
 
 export default db;

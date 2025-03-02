@@ -2,11 +2,16 @@ import { ObjectId } from "mongodb";
 
 // User schema for MongoDB (conceptual)
 // Fields: username, email, password (hashed), created_at
+// Update UserSchema to include social network fields
 export const UserSchema = {
   username: String,
   email: String,
   password: String,
-  created_at: Date
+  created_at: Date,
+  profilePicture: String,
+  bio: String,
+  followers: Array,
+  following: Array
 };
 
 // Helper functions for user operations

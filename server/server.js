@@ -1,7 +1,8 @@
 import express from "express";
 import cors from "cors";
-import records from "./routes/record.js";
 import auth from "./routes/auth.js";
+import posts from "./routes/posts.js";
+import users from "./routes/users.js";
 import { auth as authMiddleware } from "./middleware/auth.js";
 import dotenv from "dotenv";
 
@@ -16,8 +17,10 @@ app.use(express.json());
 
 // Routes
 app.use("/auth", auth);
+
 // Protected routes - require authentication
-app.use("/record", authMiddleware, records); 
+app.use("/posts", authMiddleware, posts);
+app.use("/users", authMiddleware, users);
 
 // start the Express server
 app.listen(PORT, () => {
