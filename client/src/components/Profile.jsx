@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import Post from "./Post";
 
-export default function Profile() {
+export default function CustomProfile() {
   const [profileData, setProfileData] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -119,6 +118,170 @@ export default function Profile() {
     }
   };
 
+  // Format date
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  // Handle like
+  const handleLike = async (postId) => {
+    try {
+      await fetch(`http://localhost:5050/posts/${postId}/like`, {
+        method: 'POST',
+        headers: {
+          'x-auth-token': token
+        }
+      });
+      
+      // Refresh posts to show updated likes
+      const response = await fetch(`http://localhost:5050/posts/user/${userId}`, {
+        headers: {
+          "x-auth-token": token
+        }
+      });
+      
+      if (response.ok) {
+        const updatedPosts = await response.json();
+        setPosts(updatedPosts);
+      }
+    } catch (error) {
+      console.error('Error liking post:', error);
+    }
+  };
+
+  // Handle comment
+  const handleComment = async (postId, comment) => {
+    if (!comment.trim()) return;
+    
+    try {
+      await fetch(`http://localhost:5050/posts/${postId}/comment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token
+        },
+        body: JSON.stringify({ content: comment })
+      });
+      
+      // Refresh posts to show new comment
+      const response = await fetch(`http://localhost:5050/posts/user/${userId}`, {
+        headers: {
+          "x-auth-token": token
+        }
+      });
+      
+      if (response.ok) {
+        const updatedPosts = await response.json();
+        setPosts(updatedPosts);
+      }
+    } catch (error) {
+      console.error('Error commenting on post:', error);
+    }
+  };
+
+  const PostItem = ({ post }) => {
+    const [comment, setComment] = useState('');
+    const [showComments, setShowComments] = useState(false);
+    
+    return (
+      <div className="bg-white rounded-lg shadow p-4 mb-4">
+        {/* Post Header */}
+        <div className="flex items-center mb-3">
+          <div className="w-10 h-10 rounded-full bg-gray-200 mr-3 flex-shrink-0">
+            {/* Profile image placeholder */}
+          </div>
+          <div>
+            <Link 
+              to={`/profile/${post.author?._id}`} 
+              className="font-medium text-gray-900 hover:underline"
+            >
+              {post.author?.username || "Unknown User"}
+            </Link>
+            <p className="text-xs text-gray-500">{formatDate(post.createdAt)}</p>
+          </div>
+        </div>
+        
+        {/* Post Content */}
+        <p className="text-gray-800 mb-3">{post.content}</p>
+        
+        {/* Post Actions */}
+        <div className="flex border-t border-b py-2 mb-3">
+          <button 
+            onClick={() => handleLike(post._id)}
+            className="flex-1 flex items-center justify-center py-1 text-gray-500 hover:bg-gray-50 rounded"
+          >
+            <span className="mr-1">👍</span> Like ({post.likes?.length || 0})
+          </button>
+          <button 
+            onClick={() => setShowComments(!showComments)}
+            className="flex-1 flex items-center justify-center py-1 text-gray-500 hover:bg-gray-50 rounded"
+          >
+            <span className="mr-1">💬</span> Comment ({post.comments?.length || 0})
+          </button>
+        </div>
+        
+        {/* Comments Section */}
+        {showComments && (
+          <div>
+            {/* Add Comment Form */}
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleComment(post._id, comment);
+                setComment('');
+              }} 
+              className="flex mb-3"
+            >
+              <input
+                type="text"
+                placeholder="Write a comment..."
+                className="flex-1 p-2 border border-gray-300 rounded-l-md"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+              />
+              <button
+                type="submit"
+                className="px-3 bg-indigo-600 text-white rounded-r-md"
+              >
+                Post
+              </button>
+            </form>
+            
+            {/* Comments List */}
+            <div className="space-y-2">
+              {post.comments && post.comments.length > 0 ? (
+                post.comments.map((comment, index) => (
+                  <div key={index} className="flex p-2 bg-gray-50 rounded">
+                    <div className="w-8 h-8 rounded-full bg-gray-300 mr-2 flex-shrink-0">
+                      {/* Comment profile image placeholder */}
+                    </div>
+                    <div>
+                      <div className="flex items-baseline gap-2">
+                        <Link 
+                          to={`/profile/${comment.author?._id}`} 
+                          className="font-medium text-gray-900 hover:underline"
+                        >
+                          {comment.author?.username || "Unknown User"}
+                        </Link>
+                        <span className="text-xs text-gray-500">
+                          {formatDate(comment.createdAt)}
+                        </span>
+                      </div>
+                      <p className="text-gray-800 text-sm">{comment.content}</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500 text-sm text-center">No comments yet</p>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -230,7 +393,7 @@ export default function Profile() {
       <div className="space-y-4">
         {posts.length > 0 ? (
           posts.map((post) => (
-            <Post key={post._id} post={post} />
+            <PostItem key={post._id} post={post} />
           ))
         ) : (
           <div className="bg-white p-4 rounded-lg shadow text-center">
