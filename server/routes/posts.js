@@ -7,6 +7,7 @@ import { findUserById } from "../models/user.js";
 const router = express.Router();
 
 // Get feed posts (posts from users the current user follows)
+// In server/routes/posts.js
 router.get("/", async (req, res) => {
   try {
     // Get current user
@@ -27,8 +28,23 @@ router.get("/", async (req, res) => {
       // Remove password from author info
       if (author) {
         const { password, ...authorWithoutPassword } = author;
-        return { ...post, author: authorWithoutPassword };
+        post.author = authorWithoutPassword;
       }
+      
+      // Add this section to populate comment authors
+      if (post.comments && post.comments.length > 0) {
+        const populatedComments = await Promise.all(post.comments.map(async (comment) => {
+          const commentAuthor = await findUserById(db, comment.author);
+          if (commentAuthor) {
+            const { password, ...authorWithoutPassword } = commentAuthor;
+            return { ...comment, author: authorWithoutPassword };
+          }
+          return comment;
+        }));
+        
+        post.comments = populatedComments;
+      }
+      
       return post;
     }));
     
@@ -74,6 +90,7 @@ router.post("/", async (req, res) => {
 });
 
 // Get posts by user ID
+// In server/routes/posts.js - for the user profile endpoint
 router.get("/user/:userId", async (req, res) => {
   try {
     const posts = await findPostsByUser(db, req.params.userId);
@@ -84,8 +101,23 @@ router.get("/user/:userId", async (req, res) => {
       // Remove password from author info
       if (author) {
         const { password, ...authorWithoutPassword } = author;
-        return { ...post, author: authorWithoutPassword };
+        post.author = authorWithoutPassword;
       }
+      
+      // Add this section to populate comment authors
+      if (post.comments && post.comments.length > 0) {
+        const populatedComments = await Promise.all(post.comments.map(async (comment) => {
+          const commentAuthor = await findUserById(db, comment.author);
+          if (commentAuthor) {
+            const { password, ...authorWithoutPassword } = commentAuthor;
+            return { ...comment, author: authorWithoutPassword };
+          }
+          return comment;
+        }));
+        
+        post.comments = populatedComments;
+      }
+      
       return post;
     }));
     
