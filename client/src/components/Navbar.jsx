@@ -18,9 +18,16 @@ export default function Navbar() {
         <div className="flex gap-3 items-center">
           {isAuthenticated ? (
             <>
-              <span className="text-sm text-gray-700">
-                Welcome, {user?.username || 'User'}
-              </span>
+              <div className="flex items-center">
+                <img 
+                  src={user?.profilePicture || "https://via.placeholder.com/32"} 
+                  alt={user?.username || 'User'} 
+                  className="h-8 w-8 rounded-full object-cover mr-2"
+                />
+                <span className="text-sm text-gray-700">
+                  {user?.username || 'User'}
+                </span>
+              </div>
               
               <NavLink 
                 className="inline-flex items-center justify-center whitespace-nowrap text-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-slate-100 h-9 rounded-md px-3" 

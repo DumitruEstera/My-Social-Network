@@ -72,7 +72,7 @@ export default function Post({ post }) {
         <img 
           src={post.author?.profilePicture || "https://via.placeholder.com/40"} 
           alt={post.author?.username || "User"} 
-          className="h-10 w-10 rounded-full mr-3"
+          className="h-10 w-10 rounded-full object-cover mr-3"
         />
         <div>
           <Link to={`/profile/${post.author?._id}`} className="font-medium text-gray-900 hover:underline">
@@ -151,7 +151,7 @@ export default function Post({ post }) {
                   <img 
                     src={comment.author?.profilePicture || "https://via.placeholder.com/30"} 
                     alt={comment.author?.username || "User"} 
-                    className="h-8 w-8 rounded-full mr-2"
+                    className="h-8 w-8 rounded-full object-cover mr-2"
                   />
                   <div className="flex-1">
                     <div className="flex items-baseline gap-2">

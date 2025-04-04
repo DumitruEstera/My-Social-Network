@@ -109,9 +109,11 @@ const CustomFeed = () => {
       <div className="bg-white rounded-lg shadow p-4 mb-4">
         {/* Post Header */}
         <div className="flex items-center mb-3">
-          <div className="w-10 h-10 rounded-full bg-gray-200 mr-3 flex-shrink-0">
-            {/* Profile image placeholder */}
-          </div>
+          <img 
+            src={post.author?.profilePicture || "https://via.placeholder.com/40"} 
+            alt={post.author?.username || "User"} 
+            className="h-10 w-10 rounded-full object-cover mr-3"
+          />
           <div>
             <Link 
               to={`/profile/${post.author?._id}`} 
@@ -125,6 +127,13 @@ const CustomFeed = () => {
         
         {/* Post Content */}
         <p className="text-gray-800 mb-3">{post.content}</p>
+        
+        {/* Post Image (if any) */}
+        {post.image && (
+          <div className="mb-3">
+            <img src={post.image} alt="Post content" className="w-full rounded-lg" />
+          </div>
+        )}
         
         {/* Post Actions */}
         <div className="flex border-t border-b py-2 mb-3">
@@ -174,9 +183,11 @@ const CustomFeed = () => {
               {post.comments && post.comments.length > 0 ? (
                 post.comments.map((comment, index) => (
                   <div key={index} className="flex p-2 bg-gray-50 rounded">
-                    <div className="w-8 h-8 rounded-full bg-gray-300 mr-2 flex-shrink-0">
-                      {/* Comment profile image placeholder */}
-                    </div>
+                    <img 
+                      src={comment.author?.profilePicture || "https://via.placeholder.com/30"} 
+                      alt={comment.author?.username || "User"} 
+                      className="h-8 w-8 rounded-full object-cover mr-2"
+                    />
                     <div>
                       <div className="flex items-baseline gap-2">
                         <Link 
@@ -209,23 +220,30 @@ const CustomFeed = () => {
       
       {/* Create Post Form */}
       <div className="bg-white rounded-lg shadow p-4 mb-6">
-        <form onSubmit={handlePostSubmit}>
-          <textarea
-            className="w-full p-2 border border-gray-300 rounded-md"
-            placeholder="What's on your mind?"
-            rows="3"
-            value={newPostContent}
-            onChange={(e) => setNewPostContent(e.target.value)}
-          ></textarea>
-          <div className="flex justify-end mt-2">
-            <button
-              type="submit"
-              className="px-4 py-2 bg-indigo-600 text-white rounded-md"
-            >
-              Post
-            </button>
-          </div>
-        </form>
+        <div className="flex items-start mb-3">
+          <img 
+            src={user?.profilePicture || "https://via.placeholder.com/40"} 
+            alt={user?.username || "You"} 
+            className="h-10 w-10 rounded-full object-cover mr-3"
+          />
+          <form onSubmit={handlePostSubmit} className="w-full">
+            <textarea
+              className="w-full p-2 border border-gray-300 rounded-md"
+              placeholder="What's on your mind?"
+              rows="3"
+              value={newPostContent}
+              onChange={(e) => setNewPostContent(e.target.value)}
+            ></textarea>
+            <div className="flex justify-end mt-2">
+              <button
+                type="submit"
+                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+              >
+                Post
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
       
       {/* Posts List */}
