@@ -3,8 +3,15 @@ import { ObjectId } from "mongodb";
 import db from "../db/connection.js";
 import { createPost, findPostById, findPostsByUser, getFeedPosts, likePost, addComment } from "../models/post.js";
 import { findUserById } from "../models/user.js";
+import upload from "../middleware/upload.js";
+import { uploadImage } from "../utils/cloudinary.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const router = express.Router();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Get feed posts (posts from users the current user follows)
 // In server/routes/posts.js
@@ -49,6 +56,38 @@ router.get("/", async (req, res) => {
     }));
     
     res.json(populatedPosts);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Server error" });
+  }
+});
+
+// Upload post image
+// Place this route before other post routes
+router.post("/upload-image", upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ msg: "No file uploaded" });
+    }
+
+    // Create uploads directory if it doesn't exist
+    const uploadsDir = path.join(__dirname, '..', 'uploads');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+
+    const imagePath = req.file.path;
+    
+    // Upload to Cloudinary
+    const imageResult = await uploadImage(imagePath);
+    
+    // Delete temp file
+    fs.unlinkSync(imagePath);
+    
+    res.json({ 
+      success: true,
+      imageUrl: imageResult.url
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: "Server error" });

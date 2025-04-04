@@ -267,7 +267,16 @@ export default function CustomProfile() {
         </div>
         
         {/* Post Content */}
-        <p className="text-gray-800 mb-3">{post.content}</p>
+        {post.content && (
+          <p className="text-gray-800 mb-3">{post.content}</p>
+        )}
+        
+        {/* Post Image (if any) */}
+        {post.image && (
+          <div className="mb-3">
+            <img src={post.image} alt="Post content" className="w-full rounded-lg" />
+          </div>
+        )}
         
         {/* Post Actions */}
         <div className="flex border-t border-b py-2 mb-3">

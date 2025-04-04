@@ -12,7 +12,7 @@ export default function Navbar() {
     <div>
       <nav className="flex justify-between items-center mb-6">
         <NavLink to="/" className="text-2xl font-bold text-indigo-600">
-          ConnectU
+          Buzzly
         </NavLink>
         
         <div className="flex gap-3 items-center">
