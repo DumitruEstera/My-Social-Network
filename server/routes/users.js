@@ -163,6 +163,17 @@ router.post("/:id/follow", async (req, res) => {
         { _id: new ObjectId(req.params.id) },
         { $addToSet: { followers: new ObjectId(req.user.id) } }
       );
+      
+      // Create a notification for the user being followed
+      const notificationCollection = await db.collection("notifications");
+      await notificationCollection.insertOne({
+        recipient: new ObjectId(req.params.id),
+        sender: new ObjectId(req.user.id),
+        type: "follow",
+        read: false,
+        content: `${currentUser.username} started following you.`,
+        createdAt: new Date()
+      });
     }
     
     // Get updated user to follow
