@@ -245,6 +245,7 @@ export default function CustomProfile() {
   const PostItem = ({ post }) => {
     const [comment, setComment] = useState('');
     const [showComments, setShowComments] = useState(false);
+    const isLiked = Array.isArray(post.likes) && user && post.likes.some(id => id === user._id);
     
     return (
       <div className="bg-white rounded-lg shadow p-4 mb-4">
@@ -282,9 +283,10 @@ export default function CustomProfile() {
         <div className="flex border-t border-b py-2 mb-3">
           <button 
             onClick={() => handleLike(post._id)}
-            className="flex-1 flex items-center justify-center py-1 text-gray-500 hover:bg-gray-50 rounded"
+            className={`flex-1 flex items-center justify-center py-1 ${isLiked ? 'text-blue-600' : 'text-gray-500'} hover:bg-gray-50 rounded`}
           >
-            <span className="mr-1">👍</span> Like ({post.likes?.length || 0})
+            <span className="mr-1">👍</span> 
+            <span className={`${isLiked ? 'font-bold' : ''}`}>Like</span> ({post.likes?.length || 0})
           </button>
           <button 
             onClick={() => setShowComments(!showComments)}
