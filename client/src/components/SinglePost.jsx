@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import CommentItem from "./CommentItem";
 
 export default function SinglePost() {
   const [post, setPost] = useState(null);
@@ -101,6 +102,20 @@ export default function SinglePost() {
     } catch (error) {
       console.error('Error adding comment:', error);
     }
+  };
+
+  // Update a comment in the post state after it's been modified (e.g. liked)
+  const handleCommentUpdate = (updatedComment) => {
+    if (!post || !post.comments) return;
+    
+    const updatedComments = post.comments.map(comment => 
+      comment._id === updatedComment._id ? updatedComment : comment
+    );
+    
+    setPost(prevPost => ({
+      ...prevPost,
+      comments: updatedComments
+    }));
   };
 
   if (loading) {
@@ -224,28 +239,13 @@ export default function SinglePost() {
           {/* Comments List */}
           <div className="space-y-3">
             {post.comments && post.comments.length > 0 ? (
-              post.comments.map((comment, index) => (
-                <div key={index} className="flex p-3 bg-gray-50 rounded">
-                  <img 
-                    src={comment.author?.profilePicture || "https://via.placeholder.com/30"} 
-                    alt={comment.author?.username || "User"} 
-                    className="h-8 w-8 rounded-full object-cover mr-2"
-                  />
-                  <div>
-                    <div className="flex items-baseline gap-2">
-                      <Link 
-                        to={`/profile/${comment.author?._id}`} 
-                        className="font-medium text-gray-900 hover:underline"
-                      >
-                        {comment.author?.username || "Unknown User"}
-                      </Link>
-                      <span className="text-xs text-gray-500">
-                        {formatDate(comment.createdAt)}
-                      </span>
-                    </div>
-                    <p className="text-gray-800 text-sm">{comment.content}</p>
-                  </div>
-                </div>
+              post.comments.map((comment) => (
+                <CommentItem
+                  key={comment._id}
+                  comment={comment}
+                  postId={post._id}
+                  onCommentUpdate={handleCommentUpdate}
+                />
               ))
             ) : (
               <p className="text-gray-500 text-sm text-center py-4">No comments yet. Be the first to comment!</p>

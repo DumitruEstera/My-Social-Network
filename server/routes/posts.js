@@ -306,4 +306,93 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+// Like/unlike a comment
+router.post("/:postId/comments/:commentId/like", async (req, res) => {
+  try {
+    // Get the post 
+    const post = await findPostById(db, req.params.postId);
+    
+    if (!post) {
+      return res.status(404).json({ msg: "Post not found" });
+    }
+    
+    // Find the comment in the post
+    const commentIndex = post.comments.findIndex(
+      c => c._id.toString() === req.params.commentId
+    );
+    
+    if (commentIndex === -1) {
+      return res.status(404).json({ msg: "Comment not found" });
+    }
+    
+    const comment = post.comments[commentIndex];
+    
+    // Initialize likes array if it doesn't exist
+    if (!comment.likes) {
+      comment.likes = [];
+    }
+    
+    // Check if user has already liked this comment
+    const userObjectId = new ObjectId(req.user.id);
+    const userIdStr = req.user.id;
+    const isLiked = comment.likes.some(id => 
+      id.equals ? id.equals(userObjectId) : id === userIdStr
+    );
+    
+    const collection = await db.collection("posts");
+    
+    if (isLiked) {
+      // Unlike - remove user ID from likes array
+      await collection.updateOne(
+        { _id: new ObjectId(req.params.postId) },
+        { $pull: { [`comments.${commentIndex}.likes`]: userObjectId } }
+      );
+    } else {
+      // Like - add user ID to likes array
+      await collection.updateOne(
+        { _id: new ObjectId(req.params.postId) },
+        { $addToSet: { [`comments.${commentIndex}.likes`]: userObjectId } }
+      );
+      
+      // Create notification if comment is not by the current user
+      if (!comment.author.equals(userObjectId)) {
+        const currentUser = await findUserById(db, req.user.id);
+        const notificationCollection = await db.collection("notifications");
+        
+        await notificationCollection.insertOne({
+          recipient: comment.author,
+          sender: userObjectId,
+          type: "commentLike",
+          read: false,
+          postId: new ObjectId(req.params.postId),
+          commentId: new ObjectId(req.params.commentId),
+          content: `${currentUser.username} liked your comment: "${comment.content.substring(0, 30)}${comment.content.length > 30 ? '...' : ''}"`,
+          createdAt: new Date()
+        });
+      }
+    }
+    
+    // Get the updated post and comment
+    const updatedPost = await findPostById(db, req.params.postId);
+    const updatedComment = updatedPost.comments.find(
+      c => c._id.toString() === req.params.commentId
+    );
+    
+    // Get comment author info
+    const author = await findUserById(db, updatedComment.author);
+    
+    // Populate author info and remove password
+    let populatedComment = { ...updatedComment };
+    if (author) {
+      const { password, ...authorWithoutPassword } = author;
+      populatedComment.author = authorWithoutPassword;
+    }
+    
+    res.json(populatedComment);
+  } catch (err) {
+    console.error("Error processing comment like:", err);
+    res.status(500).json({ msg: "Server error", error: err.message });
+  }
+});
+
 export default router;

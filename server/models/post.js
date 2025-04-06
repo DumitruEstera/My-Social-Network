@@ -77,6 +77,7 @@ export const addComment = async (db, postId, commentData) => {
   const comment = {
     ...commentData,
     _id: new ObjectId(),
+    likes: [],  // Make sure likes array is initialized
     createdAt: new Date()
   };
   
@@ -86,4 +87,57 @@ export const addComment = async (db, postId, commentData) => {
   );
   
   return comment;
+};
+
+// Add new function to like/unlike a comment
+export const likeComment = async (db, postId, commentId, userId) => {
+  const collection = await db.collection("posts");
+  const post = await findPostById(db, postId);
+  
+  if (!post) return null;
+  
+  const comment = post.comments.find(c => c._id.equals(new ObjectId(commentId)));
+  if (!comment) return null;
+  
+  const userObjectId = new ObjectId(userId);
+  const isLiked = comment.likes && comment.likes.some(id => id.equals(userObjectId));
+  
+  if (isLiked) {
+    // Unlike comment
+    await collection.updateOne(
+      { 
+        _id: new ObjectId(postId),
+        "comments._id": new ObjectId(commentId)
+      },
+      { 
+        $pull: { "comments.$.likes": userObjectId }
+      }
+    );
+  } else {
+    // Like comment - first ensure likes array exists
+    if (!comment.likes) {
+      await collection.updateOne(
+        { 
+          _id: new ObjectId(postId),
+          "comments._id": new ObjectId(commentId)
+        },
+        { 
+          $set: { "comments.$.likes": [] }
+        }
+      );
+    }
+    
+    // Then add the like
+    await collection.updateOne(
+      { 
+        _id: new ObjectId(postId),
+        "comments._id": new ObjectId(commentId)
+      },
+      { 
+        $addToSet: { "comments.$.likes": userObjectId }
+      }
+    );
+  }
+  
+  return await findPostById(db, postId);
 };

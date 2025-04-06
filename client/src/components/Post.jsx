@@ -1,14 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import CommentItem from "./CommentItem";
 
-export default function Post({ post }) {
-  const [likes, setLikes] = useState(post.likes || 0);
+export default function Post({ post: initialPost }) {
+  const [post, setPost] = useState(initialPost);
   const [isLiked, setIsLiked] = useState(false);
   const [showComments, setShowComments] = useState(false);
-  const [comments, setComments] = useState(post.comments || []);
   const [newComment, setNewComment] = useState("");
   const { token, user } = useAuth();
+
+  // Initialize isLiked state based on user's likes
+  useEffect(() => {
+    if (user && post.likes) {
+      const userLiked = post.likes.some(id => id === user._id);
+      setIsLiked(userLiked);
+    }
+  }, [user, post.likes]);
 
   // Format date
   const formatDate = (dateString) => {
@@ -30,10 +38,32 @@ export default function Post({ post }) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      setLikes(prev => isLiked ? prev - 1 : prev + 1);
+      // Fetch the updated post data
+      await refreshPostData();
+      // Toggle isLiked state
       setIsLiked(!isLiked);
     } catch (error) {
       console.error("Error liking post:", error);
+    }
+  };
+
+  // Refresh the post data from the server
+  const refreshPostData = async () => {
+    try {
+      const response = await fetch(`http://localhost:5050/posts/${post._id}`, {
+        headers: {
+          "x-auth-token": token
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const updatedPost = await response.json();
+      setPost(updatedPost);
+    } catch (error) {
+      console.error("Error refreshing post:", error);
     }
   };
 
@@ -44,7 +74,7 @@ export default function Post({ post }) {
     if (!newComment.trim()) return;
     
     try {
-      const response = await fetch(`http://localhost:5050/posts/${post._id}/comment`, {
+      await fetch(`http://localhost:5050/posts/${post._id}/comment`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -53,16 +83,23 @@ export default function Post({ post }) {
         body: JSON.stringify({ content: newComment })
       });
       
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const comment = await response.json();
-      setComments([...comments, comment]);
+      // Refresh post to get the updated comment list with full data
+      await refreshPostData();
       setNewComment("");
     } catch (error) {
       console.error("Error adding comment:", error);
     }
+  };
+
+  // Handle comment update (e.g., when a comment is liked)
+  const handleCommentUpdate = (updatedComment) => {
+    // Update the post state with the updated comment
+    setPost(prevPost => ({
+      ...prevPost,
+      comments: prevPost.comments.map(comment => 
+        comment._id === updatedComment._id ? updatedComment : comment
+      )
+    }));
   };
 
   return (
@@ -96,9 +133,9 @@ export default function Post({ post }) {
       
       {/* Post Stats */}
       <div className="flex items-center text-sm text-gray-500 mb-2">
-        <span>{likes} likes</span>
+        <span>{post.likes?.length || 0} likes</span>
         <span className="mx-2">•</span>
-        <span>{comments.length} comments</span>
+        <span>{post.comments?.length || 0} comments</span>
       </div>
       
       {/* Post Actions */}
@@ -145,24 +182,14 @@ export default function Post({ post }) {
           
           {/* Comments List */}
           <div className="space-y-2">
-            {comments.length > 0 ? (
-              comments.map((comment, index) => (
-                <div key={index} className="flex p-2 bg-gray-50 rounded">
-                  <img 
-                    src={comment.author?.profilePicture || "https://via.placeholder.com/30"} 
-                    alt={comment.author?.username || "User"} 
-                    className="h-8 w-8 rounded-full object-cover mr-2"
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-baseline gap-2">
-                      <Link to={`/profile/${comment.author?._id}`} className="font-medium text-gray-900 hover:underline">
-                        {comment.author?.username || "Unknown User"}
-                      </Link>
-                      <span className="text-xs text-gray-500">{formatDate(comment.createdAt || new Date())}</span>
-                    </div>
-                    <p className="text-gray-800 text-sm">{comment.content}</p>
-                  </div>
-                </div>
+            {post.comments && post.comments.length > 0 ? (
+              post.comments.map((comment) => (
+                <CommentItem
+                  key={comment._id}
+                  comment={comment}
+                  postId={post._id}
+                  onCommentUpdate={handleCommentUpdate}
+                />
               ))
             ) : (
               <p className="text-gray-500 text-sm text-center">No comments yet. Be the first to comment!</p>

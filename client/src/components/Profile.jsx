@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import CommentItem from "./CommentItem";
 
 export default function CustomProfile() {
   const [profileData, setProfileData] = useState(null);
@@ -247,6 +248,22 @@ export default function CustomProfile() {
     const [showComments, setShowComments] = useState(false);
     const isLiked = Array.isArray(post.likes) && user && post.likes.some(id => id === user._id);
     
+    // Function to update a comment in the posts state
+    const handleCommentUpdate = (updatedComment) => {
+      setPosts(prevPosts => 
+        prevPosts.map(p => {
+          if (p._id !== post._id) return p;
+          
+          return {
+            ...p,
+            comments: p.comments.map(c => 
+              c._id === updatedComment._id ? updatedComment : c
+            )
+          };
+        })
+      );
+    };
+    
     return (
       <div className="bg-white rounded-lg shadow p-4 mb-4">
         {/* Post Header */}
@@ -326,28 +343,13 @@ export default function CustomProfile() {
             {/* Comments List */}
             <div className="space-y-2">
               {post.comments && post.comments.length > 0 ? (
-                post.comments.map((comment, index) => (
-                  <div key={index} className="flex p-2 bg-gray-50 rounded">
-                    <img 
-                      src={comment.author?.profilePicture || "https://via.placeholder.com/30"} 
-                      alt={comment.author?.username || "User"} 
-                      className="h-8 w-8 rounded-full object-cover mr-2"
-                    />
-                    <div>
-                      <div className="flex items-baseline gap-2">
-                        <Link 
-                          to={`/profile/${comment.author?._id}`} 
-                          className="font-medium text-gray-900 hover:underline"
-                        >
-                          {comment.author?.username || "Unknown User"}
-                        </Link>
-                        <span className="text-xs text-gray-500">
-                          {formatDate(comment.createdAt)}
-                        </span>
-                      </div>
-                      <p className="text-gray-800 text-sm">{comment.content}</p>
-                    </div>
-                  </div>
+                post.comments.map((comment) => (
+                  <CommentItem
+                    key={comment._id}
+                    comment={comment}
+                    postId={post._id}
+                    onCommentUpdate={handleCommentUpdate}
+                  />
                 ))
               ) : (
                 <p className="text-gray-500 text-sm text-center">No comments yet</p>
