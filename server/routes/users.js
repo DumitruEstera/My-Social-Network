@@ -213,4 +213,82 @@ router.get("/search/:query", async (req, res) => {
   }
 });
 
+// Get user followers
+router.get("/:id/followers", async (req, res) => {
+  try {
+    const user = await findUserById(db, req.params.id);
+    
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+    
+    const followers = user.followers || [];
+    
+    if (followers.length === 0) {
+      return res.json([]);
+    }
+    
+    // Convert string IDs to ObjectId if necessary
+    const followerIds = followers.map(id => 
+      typeof id === 'string' ? new ObjectId(id) : id
+    );
+    
+    // Get details for all followers
+    const collection = await db.collection("users");
+    const followerDetails = await collection.find({
+      _id: { $in: followerIds }
+    }).toArray();
+    
+    // Remove passwords from response
+    const safeFollowers = followerDetails.map(follower => {
+      const { password, ...followerWithoutPassword } = follower;
+      return followerWithoutPassword;
+    });
+    
+    res.json(safeFollowers);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Server error" });
+  }
+});
+
+// Get users that the specified user is following
+router.get("/:id/following", async (req, res) => {
+  try {
+    const user = await findUserById(db, req.params.id);
+    
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+    
+    const following = user.following || [];
+    
+    if (following.length === 0) {
+      return res.json([]);
+    }
+    
+    // Convert string IDs to ObjectId if necessary
+    const followingIds = following.map(id => 
+      typeof id === 'string' ? new ObjectId(id) : id
+    );
+    
+    // Get details for all users being followed
+    const collection = await db.collection("users");
+    const followingDetails = await collection.find({
+      _id: { $in: followingIds }
+    }).toArray();
+    
+    // Remove passwords from response
+    const safeFollowing = followingDetails.map(followed => {
+      const { password, ...followedWithoutPassword } = followed;
+      return followedWithoutPassword;
+    });
+    
+    res.json(safeFollowing);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Server error" });
+  }
+});
+
 export default router;

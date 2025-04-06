@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import CommentItem from "./CommentItem";
+import FollowersModal from "./FollowersModal";
 
 export default function CustomProfile() {
   const [profileData, setProfileData] = useState(null);
@@ -11,6 +12,8 @@ export default function CustomProfile() {
   const [bio, setBio] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState(""); // "followers" or "following"
   const fileInputRef = useRef(null);
   const { user, token } = useAuth();
   const { id } = useParams();
@@ -68,6 +71,12 @@ export default function CustomProfile() {
     fetchProfileData();
     fetchUserPosts();
   }, [userId, token]);
+
+  // Handle opening the followers/following modal
+  const openModal = (type) => {
+    setModalType(type);
+    setModalOpen(true);
+  };
 
   // Handle follow/unfollow
   const handleFollowToggle = async () => {
@@ -379,7 +388,12 @@ export default function CustomProfile() {
 
   // Check if current user is following this profile
   const isFollowing = user && profileData.followers?.some(
-    followerId => followerId.toString() === user._id
+    followerId => {
+      if (typeof followerId === 'string' && typeof user._id === 'string') {
+        return followerId === user._id;
+      }
+      return followerId.toString() === user._id.toString();
+    }
   );
 
   return (
@@ -431,10 +445,20 @@ export default function CustomProfile() {
                 <span className="font-semibold">{posts.length}</span> posts
               </div>
               <div>
-                <span className="font-semibold">{profileData.followers?.length || 0}</span> followers
+                <button 
+                  onClick={() => openModal('followers')}
+                  className="text-left hover:underline focus:outline-none"
+                >
+                  <span className="font-semibold">{profileData.followers?.length || 0}</span> followers
+                </button>
               </div>
               <div>
-                <span className="font-semibold">{profileData.following?.length || 0}</span> following
+                <button 
+                  onClick={() => openModal('following')}
+                  className="text-left hover:underline focus:outline-none"
+                >
+                  <span className="font-semibold">{profileData.following?.length || 0}</span> following
+                </button>
               </div>
             </div>
             
@@ -501,6 +525,15 @@ export default function CustomProfile() {
           )}
         </div>
       </div>
+      
+      {/* Followers/Following Modal */}
+      <FollowersModal 
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        type={modalType}
+        userId={userId}
+        title={modalType === 'followers' ? 'Followers' : 'Following'}
+      />
       
       {/* User Posts */}
       <h2 className="text-xl font-semibold mb-4">Posts</h2>
