@@ -1,5 +1,6 @@
 import express from "express";
 import bcrypt from "bcryptjs";
+import { ObjectId } from "mongodb";
 import { auth, generateToken } from "../middleware/auth.js";
 import db from "../db/connection.js";
 import { createUser, findUserByEmail, findUserById } from "../models/user.js";
@@ -86,6 +87,52 @@ router.get("/user", auth, async (req, res) => {
     // Remove password from response
     const { password, ...userWithoutPassword } = user;
     res.json(userWithoutPassword);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+});
+
+// @route   POST /auth/change-password
+// @desc    Change user password
+// @access  Private
+router.post("/change-password", auth, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    
+    // Validation
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ msg: "All fields are required" });
+    }
+    
+    if (newPassword.length < 6) {
+      return res.status(400).json({ msg: "New password must be at least 6 characters" });
+    }
+    
+    // Get user from database
+    const user = await findUserById(db, req.user.id);
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+    
+    // Verify current password
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ msg: "Current password is incorrect" });
+    }
+    
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    
+    // Update user password
+    const collection = db.collection("users");
+    await collection.updateOne(
+      { _id: new ObjectId(req.user.id) },
+      { $set: { password: hashedPassword } }
+    );
+    
+    res.json({ msg: "Password updated successfully" });
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server error");

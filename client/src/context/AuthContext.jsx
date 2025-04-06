@@ -106,6 +106,33 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Change password
+  const changePassword = async (currentPassword, newPassword) => {
+    setError(null);
+    
+    try {
+      const response = await fetch('http://localhost:5050/auth/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token
+        },
+        body: JSON.stringify({ currentPassword, newPassword })
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.msg || 'Password change failed');
+      }
+
+      return { success: true };
+    } catch (err) {
+      setError(err.message);
+      return { success: false, message: err.message };
+    }
+  };
+
   // Logout user
   const logout = () => {
     localStorage.removeItem('token');
@@ -121,6 +148,7 @@ export function AuthProvider({ children }) {
     register,
     login,
     logout,
+    changePassword,
     isAuthenticated: !!token
   };
 
