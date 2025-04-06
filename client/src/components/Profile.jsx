@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import CommentItem from "./CommentItem";
 import FollowersModal from "./FollowersModal";
+import PhotoGallery from "./PhotoGallery"; // Import our new component
 
 export default function CustomProfile() {
   const [profileData, setProfileData] = useState(null);
@@ -14,6 +15,7 @@ export default function CustomProfile() {
   const [uploadError, setUploadError] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState(""); // "followers" or "following"
+  const [activeTab, setActiveTab] = useState("posts"); // "posts" or "photos"
   const fileInputRef = useRef(null);
   const { user, token } = useAuth();
   const { id } = useParams();
@@ -396,6 +398,9 @@ export default function CustomProfile() {
     }
   );
 
+  // Calculate photo count for tab badge
+  const photoCount = posts.filter(post => post.image).length;
+
   return (
     <div className="max-w-2xl mx-auto">
       {/* Profile Header */}
@@ -535,19 +540,54 @@ export default function CustomProfile() {
         title={modalType === 'followers' ? 'Followers' : 'Following'}
       />
       
-      {/* User Posts */}
-      <h2 className="text-xl font-semibold mb-4">Posts</h2>
-      <div className="space-y-4">
-        {posts.length > 0 ? (
-          posts.map((post) => (
-            <PostItem key={post._id} post={post} />
-          ))
-        ) : (
-          <div className="bg-white p-4 rounded-lg shadow text-center">
-            <p className="text-gray-500">No posts yet.</p>
-          </div>
-        )}
+      {/* Content Tabs */}
+      <div className="flex border-b mb-6">
+        <button
+          onClick={() => setActiveTab("posts")}
+          className={`flex-1 py-3 font-medium text-center ${
+            activeTab === "posts"
+              ? "text-indigo-600 border-b-2 border-indigo-600"
+              : "text-gray-600 hover:text-indigo-600"
+          }`}
+        >
+          Posts
+        </button>
+        <button
+          onClick={() => setActiveTab("photos")}
+          className={`flex-1 py-3 font-medium text-center ${
+            activeTab === "photos"
+              ? "text-indigo-600 border-b-2 border-indigo-600"
+              : "text-gray-600 hover:text-indigo-600"
+          }`}
+        >
+          Photos
+          {photoCount > 0 && (
+            <span className="ml-2 px-2 py-0.5 text-xs bg-indigo-100 text-indigo-800 rounded-full">
+              {photoCount}
+            </span>
+          )}
+        </button>
       </div>
+      
+      {/* Content based on active tab */}
+      {activeTab === "posts" ? (
+        <div className="space-y-4">
+          {posts.length > 0 ? (
+            posts.map((post) => (
+              <PostItem key={post._id} post={post} />
+            ))
+          ) : (
+            <div className="bg-white p-4 rounded-lg shadow text-center">
+              <p className="text-gray-500">No posts yet.</p>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div>
+          <h2 className="text-xl font-semibold mb-4">Photos</h2>
+          <PhotoGallery posts={posts} />
+        </div>
+      )}
     </div>
   );
 }

@@ -8,7 +8,7 @@ import App from "./App";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Feed from "./components/Feed";
-import Profile from "./components/Profile";
+import CustomProfile from "./components/Profile"; // Make sure this matches the export name
 import Search from "./components/Search";
 import Settings from "./components/Settings";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -42,7 +42,7 @@ const router = createBrowserRouter([
         path: "/profile/:id",
         element: (
           <ProtectedRoute>
-            <Profile />
+            <CustomProfile />
           </ProtectedRoute>
         ),
       },
