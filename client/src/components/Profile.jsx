@@ -258,6 +258,7 @@ export default function CustomProfile() {
     const [comment, setComment] = useState('');
     const [showComments, setShowComments] = useState(false);
     const isLiked = Array.isArray(post.likes) && user && post.likes.some(id => id === user._id);
+    const commentInputRef = useRef(null);
     
     // Function to update a comment in the posts state
     const handleCommentUpdate = (updatedComment) => {
@@ -273,6 +274,24 @@ export default function CustomProfile() {
           };
         })
       );
+    };
+
+    // Handle reply to a comment
+    const handleReplyToComment = (commentToReply) => {
+      if (!commentToReply || !commentToReply.author) return;
+      
+      // Set comment input to include the @username tag
+      setComment(`@${commentToReply.author.username} `);
+      
+      // Ensure comments are visible
+      setShowComments(true);
+      
+      // Focus the comment input
+      setTimeout(() => {
+        if (commentInputRef.current) {
+          commentInputRef.current.focus();
+        }
+      }, 0);
     };
     
     return (
@@ -342,6 +361,7 @@ export default function CustomProfile() {
                 className="flex-1 p-2 border border-gray-300 rounded-l-md"
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
+                ref={commentInputRef}
               />
               <button
                 type="submit"
@@ -360,6 +380,7 @@ export default function CustomProfile() {
                     comment={comment}
                     postId={post._id}
                     onCommentUpdate={handleCommentUpdate}
+                    onReply={handleReplyToComment}
                   />
                 ))
               ) : (

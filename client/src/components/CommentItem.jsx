@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { formatCommentWithMentions, findUserByUsernameAndNavigate } from "../utils/MentionUtils";
 
-export default function CommentItem({ comment: initialComment, postId, onCommentUpdate }) {
+export default function CommentItem({ comment: initialComment, postId, onCommentUpdate, onReply }) {
   const { token, user } = useAuth();
   const [isLiking, setIsLiking] = useState(false);
   const [localLikes, setLocalLikes] = useState(initialComment.likes || []);
   const [isLiked, setIsLiked] = useState(false);
+  const navigate = useNavigate();
   
   // Initialize component state when comment changes
   useEffect(() => {
@@ -74,6 +76,18 @@ export default function CommentItem({ comment: initialComment, postId, onComment
       setIsLiking(false);
     }
   };
+
+  // Handle reply click
+  const handleReply = () => {
+    if (onReply) {
+      onReply(initialComment);
+    }
+  };
+
+  // Handle username click in mentions
+  const handleUsernameClick = (username) => {
+    findUserByUsernameAndNavigate(username, token, navigate);
+  };
   
   return (
     <div className="flex p-2 bg-gray-50 rounded mb-2">
@@ -94,7 +108,9 @@ export default function CommentItem({ comment: initialComment, postId, onComment
             {formatDate(initialComment.createdAt)}
           </span>
         </div>
-        <p className="text-gray-800 text-sm">{initialComment.content}</p>
+        <p className="text-gray-800 text-sm">
+          {formatCommentWithMentions(initialComment.content, handleUsernameClick)}
+        </p>
         
         {/* Like button and count */}
         <div className="flex items-center mt-1">
@@ -118,6 +134,23 @@ export default function CommentItem({ comment: initialComment, postId, onComment
             {localLikes.length > 0 && (
               <span className="ml-1">({localLikes.length})</span>
             )}
+          </button>
+
+          {/* Reply button */}
+          <button
+            onClick={handleReply}
+            className="flex items-center text-xs text-gray-500 hover:text-blue-600 ml-3"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" 
+              className="h-4 w-4 mr-1" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+            </svg>
+            <span>Reply</span>
           </button>
         </div>
       </div>

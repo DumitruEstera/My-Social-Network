@@ -291,4 +291,23 @@ router.get("/:id/following", async (req, res) => {
   }
 });
 
+// Find user by username (for @mentions)
+router.get("/username/:username", async (req, res) => {
+  try {
+    const user = await findUserByUsername(db, req.params.username);
+    
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+    
+    // Remove password from response
+    const { password, ...userWithoutPassword } = user;
+    
+    res.json(userWithoutPassword);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Server error" });
+  }
+});
+
 export default router;

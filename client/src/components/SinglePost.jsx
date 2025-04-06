@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import CommentItem from "./CommentItem";
@@ -11,6 +11,7 @@ export default function SinglePost() {
   const { token, user } = useAuth();
   const { id } = useParams(); // Get post ID from URL
   const navigate = useNavigate();
+  const commentInputRef = useRef(null);
 
   useEffect(() => {
     // Fetch single post data
@@ -118,6 +119,19 @@ export default function SinglePost() {
     }));
   };
 
+  // Handle reply to a comment
+  const handleReplyToComment = (commentToReply) => {
+    if (!commentToReply || !commentToReply.author) return;
+    
+    // Set comment input to include the @username tag
+    setComment(`@${commentToReply.author.username} `);
+    
+    // Focus the comment input
+    if (commentInputRef.current) {
+      commentInputRef.current.focus();
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -205,7 +219,7 @@ export default function SinglePost() {
           </button>
           <button 
             className="flex-1 flex items-center justify-center py-1 text-gray-500 hover:bg-gray-50 rounded"
-            onClick={() => document.getElementById('comment-input').focus()}
+            onClick={() => commentInputRef.current?.focus()}
           >
             <span className="mr-1">💬</span> Comment
           </button>
@@ -222,6 +236,7 @@ export default function SinglePost() {
           >
             <input
               id="comment-input"
+              ref={commentInputRef}
               type="text"
               placeholder="Write a comment..."
               className="flex-1 p-2 border border-gray-300 rounded-l-md"
@@ -245,6 +260,7 @@ export default function SinglePost() {
                   comment={comment}
                   postId={post._id}
                   onCommentUpdate={handleCommentUpdate}
+                  onReply={handleReplyToComment}
                 />
               ))
             ) : (

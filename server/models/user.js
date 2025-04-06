@@ -33,3 +33,11 @@ export const findUserById = async (db, id) => {
   const collection = await db.collection("users");
   return await collection.findOne({ _id: new ObjectId(id) });
 };
+
+// New function to find a user by username (case-insensitive exact match)
+export const findUserByUsername = async (db, username) => {
+  const collection = await db.collection("users");
+  return await collection.findOne({ 
+    username: { $regex: `^${username}$`, $options: "i" } 
+  });
+};

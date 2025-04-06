@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import CommentItem from "./CommentItem";
@@ -9,6 +9,7 @@ export default function Post({ post: initialPost }) {
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState("");
   const { token, user } = useAuth();
+  const commentInputRef = useRef(null);
 
   // Initialize isLiked state based on user's likes
   useEffect(() => {
@@ -102,6 +103,24 @@ export default function Post({ post: initialPost }) {
     }));
   };
 
+  // Handle reply to a comment
+  const handleReplyToComment = (commentToReply) => {
+    if (!commentToReply || !commentToReply.author) return;
+    
+    // Set comment input to include the @username tag
+    setNewComment(`@${commentToReply.author.username} `);
+    
+    // Ensure comments are visible
+    setShowComments(true);
+    
+    // Focus the comment input
+    setTimeout(() => {
+      if (commentInputRef.current) {
+        commentInputRef.current.focus();
+      }
+    }, 0);
+  };
+
   return (
     <div className="bg-white p-4 rounded-lg shadow">
       {/* Post Header */}
@@ -171,6 +190,7 @@ export default function Post({ post: initialPost }) {
               className="flex-1 p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-indigo-600"
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
+              ref={commentInputRef}
             />
             <button
               type="submit"
@@ -189,6 +209,7 @@ export default function Post({ post: initialPost }) {
                   comment={comment}
                   postId={post._id}
                   onCommentUpdate={handleCommentUpdate}
+                  onReply={handleReplyToComment}
                 />
               ))
             ) : (
