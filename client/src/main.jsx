@@ -13,6 +13,7 @@ import Search from "./components/Search";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
 import { NotificationProvider } from "./context/NotificationContext";
+import SinglePost from "./components/SinglePost";
 import "./index.css";
 
 const router = createBrowserRouter([
@@ -49,6 +50,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <Search />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/post/:id",
+        element: (
+          <ProtectedRoute>
+            <SinglePost />
           </ProtectedRoute>
         ),
       },

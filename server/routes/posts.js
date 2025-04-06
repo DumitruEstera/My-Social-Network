@@ -170,10 +170,37 @@ router.get("/user/:userId", async (req, res) => {
 // Like/unlike a post
 router.post("/:id/like", async (req, res) => {
   try {
+    // Get the post before the like operation to check if it's already liked
+    const postBefore = await findPostById(db, req.params.id);
+    
+    if (!postBefore) {
+      return res.status(404).json({ msg: "Post not found" });
+    }
+    
+    // Check if user has already liked this post
+    const userObjectId = new ObjectId(req.user.id);
+    const isAlreadyLiked = postBefore.likes.some(id => id.equals(userObjectId));
+    
+    // Perform the like/unlike operation
     const post = await likePost(db, req.params.id, req.user.id);
     
-    if (!post) {
-      return res.status(404).json({ msg: "Post not found" });
+    // If this is a new like (not an unlike) and the post is not by the current user
+    if (!isAlreadyLiked && !postBefore.author.equals(userObjectId)) {
+      // Get the current user for their username
+      const currentUser = await findUserById(db, req.user.id);
+      
+      // Create a notification for the post owner
+      const notificationCollection = await db.collection("notifications");
+      await notificationCollection.insertOne({
+        recipient: postBefore.author,
+        sender: userObjectId,
+        type: "like",
+        read: false,
+        postId: new ObjectId(req.params.id),  
+        content: `${currentUser.username} liked your post: "${postBefore.content?.substring(0, 30)}${postBefore.content?.length > 30 ? '...' : ''}"`,
+        postId: postBefore._id,
+        createdAt: new Date()
+      });
     }
     
     res.json(post);

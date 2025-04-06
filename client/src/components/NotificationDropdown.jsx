@@ -66,14 +66,17 @@ export default function NotificationDropdown() {
   };
 
   // Get notification link based on type
-  const getNotificationLink = (notification) => {
-    if (notification.type === 'follow') {
-      return `/profile/${notification.sender?._id}`;
-    }
-    // Add other types in the future (like, comment, etc.)
-    return '/';
-  };
+const getNotificationLink = (notification) => {
+  if (notification.type === 'follow') {
+    return `/profile/${notification.sender?._id}`;
+  }
+  if (notification.type === 'like' && notification.postId) {
+    return `/post/${notification.postId}`;
+  }
+  return '/';
+};
 
+  
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Notification Bell Icon with Badge */}
