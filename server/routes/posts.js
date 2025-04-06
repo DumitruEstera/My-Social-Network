@@ -211,6 +211,7 @@ router.post("/:id/like", async (req, res) => {
 });
 
 // Add comment to a post
+// Add comment to a post
 router.post("/:id/comment", async (req, res) => {
   try {
     const { content } = req.body;
@@ -239,6 +240,24 @@ router.post("/:id/comment", async (req, res) => {
     if (author) {
       const { password, ...authorWithoutPassword } = author;
       comment.author = authorWithoutPassword;
+    }
+    
+    // Create notification if the post is not by the commenter
+    if (!post.author.equals(new ObjectId(req.user.id))) {
+      // Get the current user for their username
+      const currentUser = await findUserById(db, req.user.id);
+      
+      // Create a notification for the post owner
+      const notificationCollection = await db.collection("notifications");
+      await notificationCollection.insertOne({
+        recipient: post.author,
+        sender: new ObjectId(req.user.id),
+        type: "comment",
+        read: false,
+        postId: post._id,
+        content: `${currentUser.username} commented on your post: "${post.content?.substring(0, 30)}${post.content?.length > 30 ? '...' : ''}"`,
+        createdAt: new Date()
+      });
     }
     
     res.json(comment);

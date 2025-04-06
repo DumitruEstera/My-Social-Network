@@ -65,12 +65,12 @@ export default function NotificationDropdown() {
     setIsOpen(false);
   };
 
-  // Get notification link based on type
+// Get notification link based on type
 const getNotificationLink = (notification) => {
   if (notification.type === 'follow') {
     return `/profile/${notification.sender?._id}`;
   }
-  if (notification.type === 'like' && notification.postId) {
+  if (notification.type === 'like' || notification.type === 'comment') {
     return `/post/${notification.postId}`;
   }
   return '/';
