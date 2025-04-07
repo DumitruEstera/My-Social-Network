@@ -201,8 +201,11 @@ const CustomFeed = () => {
   const PostItem = ({ post }) => {
     const [comment, setComment] = useState('');
     const [showComments, setShowComments] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedContent, setEditedContent] = useState('');
     const isLiked = Array.isArray(post.likes) && user && post.likes.some(id => id === user._id);
     const commentInputRef = useRef(null);
+    const editTextareaRef = useRef(null);
     
     // Function to update a comment in the posts state
     const handleCommentUpdate = (updatedComment) => {
@@ -237,60 +240,140 @@ const CustomFeed = () => {
         }
       }, 0);
     };
+
+    // Start editing the post
+    const handleEditPost = () => {
+      setIsEditing(true);
+      setEditedContent(post.content || "");
+      
+      // Focus the textarea after a short delay
+      setTimeout(() => {
+        if (editTextareaRef.current) {
+          editTextareaRef.current.focus();
+        }
+      }, 0);
+    };
+
+    // Save the edited post
+    const handleSaveEdit = async () => {
+      if (!editedContent.trim()) {
+        alert("Post content cannot be empty");
+        return;
+      }
+      
+      try {
+        const response = await fetch(`http://localhost:5050/posts/${post._id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "x-auth-token": token
+          },
+          body: JSON.stringify({ content: editedContent })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Refresh posts to show the updated content
+        fetchPosts();
+        setIsEditing(false);
+      } catch (error) {
+        console.error("Error updating post:", error);
+        alert("Failed to update post. Please try again.");
+      }
+    };
     
+    // Cancel editing
+    const handleCancelEdit = () => {
+      setIsEditing(false);
+      setEditedContent("");
+    };
+  
     return (
       <div className="bg-white rounded-lg shadow p-4 mb-4">
-        {/* Post Header */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center">
-            <img 
-              src={post.author?.profilePicture || "https://via.placeholder.com/40"} 
-              alt={post.author?.username || "User"} 
-              className="h-10 w-10 rounded-full object-cover mr-3"
-            />
-            <div>
-              <Link 
-                to={`/profile/${post.author?._id}`} 
-                className="font-medium text-gray-900 hover:underline"
-              >
-                {post.author?.username || "Unknown User"}
-              </Link>
-              <p className="text-xs text-gray-500">{formatDate(post.createdAt)}</p>
-            </div>
+      {/* Post Header */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center">
+          <img 
+            src={post.author?.profilePicture || "https://via.placeholder.com/40"} 
+            alt={post.author?.username || "User"} 
+            className="h-10 w-10 rounded-full object-cover mr-3"
+          />
+          <div>
+            <Link 
+              to={`/profile/${post.author?._id}`} 
+              className="font-medium text-gray-900 hover:underline"
+            >
+              {post.author?.username || "Unknown User"}
+            </Link>
+            <p className="text-xs text-gray-500">{formatDate(post.createdAt)}</p>
           </div>
-          
-          {/* Add Post Menu */}
-          <PostMenu post={post} onPostDeleted={handlePostDeleted} />
         </div>
         
-        {/* Post Content */}
-        {post.content && (
+        {/* Add Post Menu */}
+        <PostMenu 
+          post={post} 
+          onPostDeleted={handlePostDeleted} 
+          onEditPost={handleEditPost}
+        />
+      </div>
+      
+      {/* Post Content */}
+      {isEditing ? (
+        <div className="mb-3">
+          <textarea
+            ref={editTextareaRef}
+            value={editedContent}
+            onChange={(e) => setEditedContent(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-600"
+            rows="3"
+            placeholder="What's on your mind?"
+          ></textarea>
+          <div className="flex justify-end space-x-2 mt-2">
+            <button
+              onClick={handleCancelEdit}
+              className="px-3 py-1 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSaveEdit}
+              className="px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      ) : (
+        post.content && (
           <p className="text-gray-800 mb-3">{post.content}</p>
-        )}
-        
-        {/* Post Image (if any) */}
-        {post.image && (
-          <div className="mb-3">
-            <img src={post.image} alt="Post content" className="w-full rounded-lg" />
-          </div>
-        )}
-        
-        {/* Post Actions */}
-        <div className="flex border-t border-b py-2 mb-3">
-          <button 
-            onClick={() => handleLike(post._id)}
-            className={`flex-1 flex items-center justify-center py-1 ${isLiked ? 'text-blue-600' : 'text-gray-500'} hover:bg-gray-50 rounded`}
-          >
-            <span className="mr-1">👍</span> 
-            <span className={`${isLiked ? 'font-bold' : ''}`}>Like</span> ({post.likes?.length || 0})
-          </button>
-          <button 
-            onClick={() => setShowComments(!showComments)}
-            className="flex-1 flex items-center justify-center py-1 text-gray-500 hover:bg-gray-50 rounded"
-          >
-            <span className="mr-1">💬</span> Comment ({post.comments?.length || 0})
-          </button>
+        )
+      )}
+      
+      {/* Post Image (if any) */}
+      {post.image && (
+        <div className="mb-3">
+          <img src={post.image} alt="Post content" className="w-full rounded-lg" />
         </div>
+      )}
+      
+      {/* Post Actions */}
+      <div className="flex border-t border-b py-2 mb-3">
+        <button 
+          onClick={() => handleLike(post._id)}
+          className={`flex-1 flex items-center justify-center py-1 ${isLiked ? 'text-blue-600' : 'text-gray-500'} hover:bg-gray-50 rounded`}
+        >
+          <span className="mr-1">👍</span> 
+          <span className={`${isLiked ? 'font-bold' : ''}`}>Like</span> ({post.likes?.length || 0})
+        </button>
+        <button 
+          onClick={() => setShowComments(!showComments)}
+          className="flex-1 flex items-center justify-center py-1 text-gray-500 hover:bg-gray-50 rounded"
+        >
+          <span className="mr-1">💬</span> Comment ({post.comments?.length || 0})
+        </button>
+      </div>
         
         {/* Comments Section */}
         {showComments && (

@@ -1,17 +1,19 @@
-// Modifications for client/src/components/Post.jsx
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import CommentItem from "./CommentItem";
-import PostMenu from "./PostMenu"; // Import the new PostMenu component
+import PostMenu from "./PostMenu";
 
 export default function Post({ post: initialPost, onPostDeleted }) {
   const [post, setPost] = useState(initialPost);
   const [isLiked, setIsLiked] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedContent, setEditedContent] = useState("");
   const { token, user } = useAuth();
   const commentInputRef = useRef(null);
+  const editTextareaRef = useRef(null);
 
   // Initialize isLiked state based on user's likes
   useEffect(() => {
@@ -130,6 +132,55 @@ export default function Post({ post: initialPost, onPostDeleted }) {
     }
   };
 
+  // Start editing a post
+  const handleEditPost = () => {
+    setIsEditing(true);
+    setEditedContent(post.content || "");
+    
+    // Focus the textarea after a short delay to allow for rendering
+    setTimeout(() => {
+      if (editTextareaRef.current) {
+        editTextareaRef.current.focus();
+      }
+    }, 0);
+  };
+
+  // Save edited post
+  const handleSaveEdit = async () => {
+    if (!editedContent.trim()) {
+      alert("Post content cannot be empty");
+      return;
+    }
+    
+    try {
+      const response = await fetch(`http://localhost:5050/posts/${post._id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-auth-token": token
+        },
+        body: JSON.stringify({ content: editedContent })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const updatedPost = await response.json();
+      setPost(updatedPost);
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error updating post:", error);
+      alert("Failed to update post. Please try again.");
+    }
+  };
+
+  // Cancel editing
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditedContent("");
+  };
+
   return (
     <div className="bg-white p-4 rounded-lg shadow">
       {/* Post Header */}
@@ -149,12 +200,43 @@ export default function Post({ post: initialPost, onPostDeleted }) {
         </div>
         
         {/* Post Menu (three dots) */}
-        <PostMenu post={post} onPostDeleted={handlePostDeleted} />
+        <PostMenu 
+          post={post} 
+          onPostDeleted={handlePostDeleted} 
+          onEditPost={handleEditPost}
+        />
       </div>
       
       {/* Post Content */}
       <div className="mb-3">
-        <p className="text-gray-800">{post.content}</p>
+        {isEditing ? (
+          <div>
+            <textarea
+              ref={editTextareaRef}
+              value={editedContent}
+              onChange={(e) => setEditedContent(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-600"
+              rows="3"
+              placeholder="What's on your mind?"
+            ></textarea>
+            <div className="flex justify-end space-x-2 mt-2">
+              <button
+                onClick={handleCancelEdit}
+                className="px-3 py-1 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                className="px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-gray-800">{post.content}</p>
+        )}
       </div>
       
       {/* Post Image (if any) */}

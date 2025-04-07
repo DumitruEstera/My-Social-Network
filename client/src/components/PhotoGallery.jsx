@@ -1,10 +1,15 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import PostMenu from "./PostMenu"; // Import the PostMenu component
+import { useAuth } from "../context/AuthContext";
+import PostMenu from "./PostMenu";
 
 export default function PhotoGallery({ posts, onPostDeleted }) {
   const [activePhoto, setActivePhoto] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedContent, setEditedContent] = useState("");
   const navigate = useNavigate();
+  const { token } = useAuth();
+  const editTextareaRef = useRef(null);
   
   // Filter posts to include only those with images - do this inline without useState/useEffect
   const postsWithImages = posts.filter(post => post.image);
@@ -12,11 +17,16 @@ export default function PhotoGallery({ posts, onPostDeleted }) {
   // Open modal with larger image
   const openPhotoModal = (post) => {
     setActivePhoto(post);
+    // Reset editing state when opening a new photo
+    setIsEditing(false);
+    setEditedContent("");
   };
   
   // Close the modal
   const closePhotoModal = () => {
     setActivePhoto(null);
+    setIsEditing(false);
+    setEditedContent("");
   };
   
   // Handle post deletion
@@ -31,6 +41,69 @@ export default function PhotoGallery({ posts, onPostDeleted }) {
       onPostDeleted(postId);
     }
   };
+
+  // Start editing the post
+  const handleEditPost = () => {
+    if (!activePhoto) return;
+
+    setIsEditing(true);
+    setEditedContent(activePhoto.content || "");
+    
+    // Focus the textarea after a short delay
+    setTimeout(() => {
+      if (editTextareaRef.current) {
+        editTextareaRef.current.focus();
+      }
+    }, 0);
+  };
+
+  // Save edited post content
+  const handleSaveEdit = async () => {
+    if (!activePhoto) return;
+
+    try {
+      const response = await fetch(`http://localhost:5050/posts/${activePhoto._id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-auth-token": token
+        },
+        body: JSON.stringify({ content: editedContent })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const updatedPost = await response.json();
+      
+      // Update the active photo with the new content
+      setActivePhoto(updatedPost);
+      setIsEditing(false);
+      
+      // Update the post in the parent component if needed
+      if (onPostDeleted) {
+        // We're using onPostDeleted as a signal to the parent component that 
+        // the posts list needs to be refreshed, even though we're not deleting
+        onPostDeleted();
+      }
+    } catch (error) {
+      console.error("Error updating post:", error);
+      alert("Failed to update post. Please try again.");
+    }
+  };
+
+  // Cancel editing
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditedContent("");
+  };
+  
+  // Format date for the modal
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
   
   // If no photos, show a message
   if (postsWithImages.length === 0) {
@@ -40,12 +113,6 @@ export default function PhotoGallery({ posts, onPostDeleted }) {
       </div>
     );
   }
-  
-  // Format date for the modal
-  const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
   
   return (
     <>
@@ -107,10 +174,11 @@ export default function PhotoGallery({ posts, onPostDeleted }) {
               </div>
               
               <div className="flex items-center">
-                {/* Add Post Menu */}
+                {/* Add Post Menu with Edit functionality */}
                 <PostMenu 
                   post={activePhoto} 
-                  onPostDeleted={handlePostDeleted} 
+                  onPostDeleted={handlePostDeleted}
+                  onEditPost={handleEditPost}
                 />
                 
                 {/* Close button */}
@@ -136,21 +204,53 @@ export default function PhotoGallery({ posts, onPostDeleted }) {
             
             {/* Post Content */}
             <div className="p-4 border-t">
-              {activePhoto.content && (
-                <p className="text-gray-800 mb-3">{activePhoto.content}</p>
+              {isEditing ? (
+                <div className="mb-3">
+                  <textarea
+                    ref={editTextareaRef}
+                    value={editedContent}
+                    onChange={(e) => setEditedContent(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                    rows="3"
+                    placeholder="What's on your mind?"
+                  ></textarea>
+                  <div className="flex justify-end space-x-2 mt-2">
+                    <button
+                      onClick={handleCancelEdit}
+                      className="px-3 py-1 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSaveEdit}
+                      className="px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                activePhoto.content && (
+                  <p className="text-gray-800 mb-3">{activePhoto.content}</p>
+                )
               )}
-              <div className="flex items-center text-sm text-gray-500">
-                <span>{activePhoto.likes?.length || 0} likes</span>
-                <span className="mx-2">•</span>
-                <span>{activePhoto.comments?.length || 0} comments</span>
-              </div>
-              <Link 
-                to={`/post/${activePhoto._id}`} 
-                className="inline-block mt-3 text-indigo-600 hover:underline"
-                onClick={closePhotoModal}
-              >
-                View Post
-              </Link>
+              
+              {!isEditing && (
+                <>
+                  <div className="flex items-center text-sm text-gray-500">
+                    <span>{activePhoto.likes?.length || 0} likes</span>
+                    <span className="mx-2">•</span>
+                    <span>{activePhoto.comments?.length || 0} comments</span>
+                  </div>
+                  <Link 
+                    to={`/post/${activePhoto._id}`} 
+                    className="inline-block mt-3 text-indigo-600 hover:underline"
+                    onClick={closePhotoModal}
+                  >
+                    View Post
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

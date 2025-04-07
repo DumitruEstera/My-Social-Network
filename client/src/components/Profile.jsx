@@ -262,8 +262,11 @@ export default function CustomProfile() {
   const PostItem = ({ post }) => {
     const [comment, setComment] = useState('');
     const [showComments, setShowComments] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedContent, setEditedContent] = useState('');
     const isLiked = Array.isArray(post.likes) && user && post.likes.some(id => id === user._id);
     const commentInputRef = useRef(null);
+    const editTextareaRef = useRef(null);
     
     // Function to update a comment in the posts state
     const handleCommentUpdate = (updatedComment) => {
@@ -298,7 +301,66 @@ export default function CustomProfile() {
         }
       }, 0);
     };
-    
+
+    // Start editing a post
+    const handleEditPost = () => {
+      setIsEditing(true);
+      setEditedContent(post.content || "");
+      
+      // Focus the textarea after a short delay
+      setTimeout(() => {
+        if (editTextareaRef.current) {
+          editTextareaRef.current.focus();
+        }
+      }, 0);
+    };
+
+    // Save edited post
+    const handleSaveEdit = async () => {
+      if (!editedContent.trim()) {
+        alert("Post content cannot be empty");
+        return;
+      }
+      
+      try {
+        const response = await fetch(`http://localhost:5050/posts/${post._id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "x-auth-token": token
+          },
+          body: JSON.stringify({ content: editedContent })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Refresh user posts
+        const refreshResponse = await fetch(`http://localhost:5050/posts/user/${userId}`, {
+          headers: {
+            "x-auth-token": token
+          }
+        });
+        
+        if (refreshResponse.ok) {
+          const updatedPosts = await refreshResponse.json();
+          setPosts(updatedPosts);
+        }
+        
+        setIsEditing(false);
+      } catch (error) {
+        console.error("Error updating post:", error);
+        alert("Failed to update post. Please try again.");
+      }
+    };
+
+    // Cancel editing
+    const handleCancelEdit = () => {
+      setIsEditing(false);
+      setEditedContent("");
+    };
+
     return (
       <div className="bg-white rounded-lg shadow p-4 mb-4">
         {/* Post Header */}
@@ -321,12 +383,43 @@ export default function CustomProfile() {
           </div>
           
           {/* Add Post Menu */}
-          <PostMenu post={post} onPostDeleted={handlePostDeleted} />
+          <PostMenu 
+            post={post} 
+            onPostDeleted={handlePostDeleted}
+            onEditPost={handleEditPost}
+          />
         </div>
         
         {/* Post Content */}
-        {post.content && (
-          <p className="text-gray-800 mb-3">{post.content}</p>
+        {isEditing ? (
+          <div className="mb-3">
+            <textarea
+              ref={editTextareaRef}
+              value={editedContent}
+              onChange={(e) => setEditedContent(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-600"
+              rows="3"
+              placeholder="What's on your mind?"
+            ></textarea>
+            <div className="flex justify-end space-x-2 mt-2">
+              <button
+                onClick={handleCancelEdit}
+                className="px-3 py-1 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                className="px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        ) : (
+          post.content && (
+            <p className="text-gray-800 mb-3">{post.content}</p>
+          )
         )}
         
         {/* Post Image (if any) */}

@@ -420,4 +420,64 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+// Update a post
+router.patch("/:id", async (req, res) => {
+  try {
+    const { content } = req.body;
+    
+    if (!content) {
+      return res.status(400).json({ msg: "Content is required" });
+    }
+    
+    // Check if post exists
+    const post = await findPostById(db, req.params.id);
+    if (!post) {
+      return res.status(404).json({ msg: "Post not found" });
+    }
+    
+    // Check if user is the author of the post
+    if (post.author.toString() !== req.user.id) {
+      return res.status(401).json({ msg: "Not authorized to update this post" });
+    }
+    
+    // Update the post
+    const collection = await db.collection("posts");
+    await collection.updateOne(
+      { _id: new ObjectId(req.params.id) },
+      { $set: { content } }
+    );
+    
+    // Get the updated post
+    const updatedPost = await findPostById(db, req.params.id);
+    
+    // Populate author information
+    const author = await findUserById(db, updatedPost.author);
+    
+    // Remove password from author info
+    if (author) {
+      const { password, ...authorWithoutPassword } = author;
+      updatedPost.author = authorWithoutPassword;
+    }
+    
+    // Populate comment authors
+    if (updatedPost.comments && updatedPost.comments.length > 0) {
+      const populatedComments = await Promise.all(updatedPost.comments.map(async (comment) => {
+        const commentAuthor = await findUserById(db, comment.author);
+        if (commentAuthor) {
+          const { password, ...authorWithoutPassword } = commentAuthor;
+          return { ...comment, author: authorWithoutPassword };
+        }
+        return comment;
+      }));
+      
+      updatedPost.comments = populatedComments;
+    }
+    
+    res.json(updatedPost);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Server error" });
+  }
+});
+
 export default router;

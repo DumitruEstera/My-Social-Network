@@ -1,9 +1,8 @@
-// client/src/components/PostMenu.jsx
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-export default function PostMenu({ post, onPostDeleted }) {
+export default function PostMenu({ post, onPostDeleted, onEditPost }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const { token, user } = useAuth();
@@ -61,6 +60,16 @@ export default function PostMenu({ post, onPostDeleted }) {
       alert("Failed to delete post. Please try again.");
     }
   };
+
+  const handleEditPost = () => {
+    // Close the menu
+    setIsMenuOpen(false);
+    
+    // Call the callback to start editing
+    if (onEditPost) {
+      onEditPost(post);
+    }
+  };
   
   // Don't render the menu if user is not the author
   if (!isAuthor) {
@@ -84,6 +93,12 @@ export default function PostMenu({ post, onPostDeleted }) {
       {isMenuOpen && (
         <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg z-10">
           <div className="py-1">
+            <button
+              onClick={handleEditPost}
+              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            >
+              Edit post
+            </button>
             <button
               onClick={handleDeletePost}
               className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
