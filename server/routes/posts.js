@@ -395,4 +395,29 @@ router.post("/:postId/comments/:commentId/like", async (req, res) => {
   }
 });
 
+router.delete("/:id", async (req, res) => {
+  try {
+    // Get the post to check if user is authorized to delete it
+    const post = await findPostById(db, req.params.id);
+    
+    if (!post) {
+      return res.status(404).json({ msg: "Post not found" });
+    }
+    
+    // Check if user is the author of the post
+    if (post.author.toString() !== req.user.id) {
+      return res.status(401).json({ msg: "Not authorized to delete this post" });
+    }
+    
+    // Delete the post
+    const collection = await db.collection("posts");
+    await collection.deleteOne({ _id: new ObjectId(req.params.id) });
+    
+    res.json({ success: true, msg: "Post deleted" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Server error" });
+  }
+});
+
 export default router;

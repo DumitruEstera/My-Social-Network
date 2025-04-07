@@ -141,3 +141,8 @@ export const likeComment = async (db, postId, commentId, userId) => {
   
   return await findPostById(db, postId);
 };
+
+export const deletePost = async (db, postId) => {
+  const collection = await db.collection("posts");
+  return await collection.deleteOne({ _id: new ObjectId(postId) });
+};

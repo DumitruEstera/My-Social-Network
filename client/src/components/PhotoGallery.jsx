@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import PostMenu from "./PostMenu"; // Import the PostMenu component
 
-export default function PhotoGallery({ posts }) {
+export default function PhotoGallery({ posts, onPostDeleted }) {
   const [activePhoto, setActivePhoto] = useState(null);
+  const navigate = useNavigate();
   
-  // Filter posts to include only those with images
+  // Filter posts to include only those with images - do this inline without useState/useEffect
   const postsWithImages = posts.filter(post => post.image);
   
   // Open modal with larger image
@@ -15,6 +17,19 @@ export default function PhotoGallery({ posts }) {
   // Close the modal
   const closePhotoModal = () => {
     setActivePhoto(null);
+  };
+  
+  // Handle post deletion
+  const handlePostDeleted = (postId) => {
+    // Close the modal if the active photo is deleted
+    if (activePhoto && activePhoto._id === postId) {
+      setActivePhoto(null);
+    }
+    
+    // Call the parent's onPostDeleted if provided
+    if (onPostDeleted) {
+      onPostDeleted(postId);
+    }
   };
   
   // If no photos, show a message
@@ -31,8 +46,6 @@ export default function PhotoGallery({ posts }) {
     const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
-
-  const navigate = useNavigate();
   
   return (
     <>
@@ -92,11 +105,24 @@ export default function PhotoGallery({ posts }) {
                   <p className="text-xs text-gray-500">{formatDate(activePhoto.createdAt)}</p>
                 </div>
               </div>
-              <button onClick={closePhotoModal} className="text-gray-400 hover:text-gray-500">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+              
+              <div className="flex items-center">
+                {/* Add Post Menu */}
+                <PostMenu 
+                  post={activePhoto} 
+                  onPostDeleted={handlePostDeleted} 
+                />
+                
+                {/* Close button */}
+                <button 
+                  onClick={closePhotoModal} 
+                  className="ml-2 text-gray-400 hover:text-gray-500"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             </div>
             
             {/* Image */}

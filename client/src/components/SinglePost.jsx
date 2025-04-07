@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import CommentItem from "./CommentItem";
+import PostMenu from "./PostMenu";
 
 export default function SinglePost() {
   const [post, setPost] = useState(null);
@@ -172,21 +173,29 @@ export default function SinglePost() {
 
       <div className="bg-white rounded-lg shadow p-4">
         {/* Post Header */}
-        <div className="flex items-center mb-4">
-          <img 
-            src={post.author?.profilePicture || "https://via.placeholder.com/40"} 
-            alt={post.author?.username || "User"} 
-            className="h-10 w-10 rounded-full object-cover mr-3"
-          />
-          <div>
-            <Link 
-              to={`/profile/${post.author?._id}`} 
-              className="font-medium text-gray-900 hover:underline"
-            >
-              {post.author?.username || "Unknown User"}
-            </Link>
-            <p className="text-xs text-gray-500">{formatDate(post.createdAt)}</p>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <img 
+              src={post.author?.profilePicture || "https://via.placeholder.com/40"} 
+              alt={post.author?.username || "User"} 
+              className="h-10 w-10 rounded-full object-cover mr-3"
+            />
+            <div>
+              <Link 
+                to={`/profile/${post.author?._id}`} 
+                className="font-medium text-gray-900 hover:underline"
+              >
+                {post.author?.username || "Unknown User"}
+              </Link>
+              <p className="text-xs text-gray-500">{formatDate(post.createdAt)}</p>
+            </div>
           </div>
+          
+          {/* Add Post Menu */}
+          <PostMenu 
+            post={post} 
+            onPostDeleted={() => navigate('/', { replace: true })} 
+          />
         </div>
         
         {/* Post Content */}

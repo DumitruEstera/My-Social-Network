@@ -1,9 +1,11 @@
+// Modifications for client/src/components/Post.jsx
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import CommentItem from "./CommentItem";
+import PostMenu from "./PostMenu"; // Import the new PostMenu component
 
-export default function Post({ post: initialPost }) {
+export default function Post({ post: initialPost, onPostDeleted }) {
   const [post, setPost] = useState(initialPost);
   const [isLiked, setIsLiked] = useState(false);
   const [showComments, setShowComments] = useState(false);
@@ -121,21 +123,33 @@ export default function Post({ post: initialPost }) {
     }, 0);
   };
 
+  // Handle post deletion
+  const handlePostDeleted = () => {
+    if (onPostDeleted) {
+      onPostDeleted(post._id);
+    }
+  };
+
   return (
     <div className="bg-white p-4 rounded-lg shadow">
       {/* Post Header */}
-      <div className="flex items-center mb-3">
-        <img 
-          src={post.author?.profilePicture || "https://via.placeholder.com/40"} 
-          alt={post.author?.username || "User"} 
-          className="h-10 w-10 rounded-full object-cover mr-3"
-        />
-        <div>
-          <Link to={`/profile/${post.author?._id}`} className="font-medium text-gray-900 hover:underline">
-            {post.author?.username || "Unknown User"}
-          </Link>
-          <p className="text-xs text-gray-500">{formatDate(post.createdAt || new Date())}</p>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center">
+          <img 
+            src={post.author?.profilePicture || "https://via.placeholder.com/40"} 
+            alt={post.author?.username || "User"} 
+            className="h-10 w-10 rounded-full object-cover mr-3"
+          />
+          <div>
+            <Link to={`/profile/${post.author?._id}`} className="font-medium text-gray-900 hover:underline">
+              {post.author?.username || "Unknown User"}
+            </Link>
+            <p className="text-xs text-gray-500">{formatDate(post.createdAt || new Date())}</p>
+          </div>
         </div>
+        
+        {/* Post Menu (three dots) */}
+        <PostMenu post={post} onPostDeleted={handlePostDeleted} />
       </div>
       
       {/* Post Content */}

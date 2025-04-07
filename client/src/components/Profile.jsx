@@ -3,7 +3,8 @@ import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import CommentItem from "./CommentItem";
 import FollowersModal from "./FollowersModal";
-import PhotoGallery from "./PhotoGallery"; // Import our new component
+import PhotoGallery from "./PhotoGallery"; 
+import PostMenu from "./PostMenu";
 
 export default function CustomProfile() {
   const [profileData, setProfileData] = useState(null);
@@ -254,6 +255,10 @@ export default function CustomProfile() {
     }
   };
 
+  const handlePostDeleted = (postId) => {
+    setPosts(prevPosts => prevPosts.filter(post => post._id !== postId));
+  };
+
   const PostItem = ({ post }) => {
     const [comment, setComment] = useState('');
     const [showComments, setShowComments] = useState(false);
@@ -297,21 +302,26 @@ export default function CustomProfile() {
     return (
       <div className="bg-white rounded-lg shadow p-4 mb-4">
         {/* Post Header */}
-        <div className="flex items-center mb-3">
-          <img 
-            src={post.author?.profilePicture || "https://via.placeholder.com/40"} 
-            alt={post.author?.username || "User"} 
-            className="h-10 w-10 rounded-full object-cover mr-3"
-          />
-          <div>
-            <Link 
-              to={`/profile/${post.author?._id}`} 
-              className="font-medium text-gray-900 hover:underline"
-            >
-              {post.author?.username || "Unknown User"}
-            </Link>
-            <p className="text-xs text-gray-500">{formatDate(post.createdAt)}</p>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center">
+            <img 
+              src={post.author?.profilePicture || "https://via.placeholder.com/40"} 
+              alt={post.author?.username || "User"} 
+              className="h-10 w-10 rounded-full object-cover mr-3"
+            />
+            <div>
+              <Link 
+                to={`/profile/${post.author?._id}`} 
+                className="font-medium text-gray-900 hover:underline"
+              >
+                {post.author?.username || "Unknown User"}
+              </Link>
+              <p className="text-xs text-gray-500">{formatDate(post.createdAt)}</p>
+            </div>
           </div>
+          
+          {/* Add Post Menu */}
+          <PostMenu post={post} onPostDeleted={handlePostDeleted} />
         </div>
         
         {/* Post Content */}
