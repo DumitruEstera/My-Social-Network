@@ -397,7 +397,7 @@ const CustomFeed = () => {
               />
               <button
                 type="submit"
-                className="px-3 bg-indigo-600 text-white rounded-r-md"
+                className="px-3 bg-orange-900 text-white rounded-r-md"
               >
                 Post
               </button>

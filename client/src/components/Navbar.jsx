@@ -22,7 +22,7 @@ export default function Navbar() {
   return (
     <div>
       <nav className="flex flex-col md:flex-row justify-between items-center mb-6 gap-3">
-        <NavLink to="/" className="text-2xl font-bold text-indigo-600">
+        <NavLink to="/" className="text-2xl font-bold text-orange-900">
           Buzzly
         </NavLink>
         

@@ -57,7 +57,7 @@ export default function Register() {
     <div className="flex min-h-full flex-col justify-center px-6 py-12">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <div className="flex items-center justify-center gap-2 mb-2">
-          <img src="/BuzzlyLogo.png" alt="Buzzly Logo" className="h-35 w-35" />
+          <img src="/BuzzlyLogo3.png" alt="Buzzly Logo" className="h-35 w-35" />
         </div>
         <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-slate-900">
           Create a new account
@@ -148,7 +148,7 @@ export default function Register() {
             <button
               type="submit"
               disabled={loading}
-              className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50"
+              className="flex w-full justify-center rounded-md bg-orange-900 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-yellow-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50"
             >
               {loading ? "Creating account..." : "Create account"}
             </button>
@@ -157,7 +157,7 @@ export default function Register() {
 
         <p className="mt-10 text-center text-sm text-slate-500">
           Already have an account?{' '}
-          <Link to="/login" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
+          <Link to="/login" className="font-semibold leading-6 text-orange-900 hover:text-yellow-600">
             Sign in
           </Link>
         </p>
