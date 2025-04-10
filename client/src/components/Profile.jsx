@@ -367,7 +367,7 @@ export default function CustomProfile() {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center">
             <img 
-              src={post.author?.profilePicture || "https://via.placeholder.com/40"} 
+              src={post.author?.profilePicture || "/default-avatar.jpg"} 
               alt={post.author?.username || "User"} 
               className="h-10 w-10 rounded-full object-cover mr-3"
             />
@@ -532,7 +532,7 @@ export default function CustomProfile() {
         <div className="flex items-center gap-6">
           <div className="relative">
             <img 
-              src={profileData.profilePicture || "https://via.placeholder.com/100"} 
+              src={profileData.profilePicture || "/default-avatar.jpg"} 
               alt={profileData.username} 
               className="h-24 w-24 rounded-full object-cover"
             />

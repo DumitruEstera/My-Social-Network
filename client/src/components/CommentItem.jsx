@@ -92,7 +92,7 @@ export default function CommentItem({ comment: initialComment, postId, onComment
   return (
     <div className="flex p-2 bg-gray-50 rounded mb-2">
       <img 
-        src={initialComment.author?.profilePicture || "https://via.placeholder.com/30"} 
+        src={initialComment.author?.profilePicture || "/default-avatar.jpg"} 
         alt={initialComment.author?.username || "User"} 
         className="h-8 w-8 rounded-full object-cover mr-2"
       />

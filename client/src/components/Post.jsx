@@ -187,7 +187,7 @@ export default function Post({ post: initialPost, onPostDeleted }) {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center">
           <img 
-            src={post.author?.profilePicture || "https://via.placeholder.com/40"} 
+            src={post.author?.profilePicture || "/default-avatar.jpg"} 
             alt={post.author?.username || "User"} 
             className="h-10 w-10 rounded-full object-cover mr-3"
           />

@@ -296,7 +296,7 @@ const CustomFeed = () => {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center">
           <img 
-            src={post.author?.profilePicture || "https://via.placeholder.com/40"} 
+            src={post.author?.profilePicture || "/default-avatar.jpg"} 
             alt={post.author?.username || "User"} 
             className="h-10 w-10 rounded-full object-cover mr-3"
           />
@@ -433,7 +433,7 @@ const CustomFeed = () => {
       <div className="bg-white rounded-lg shadow p-4 mb-6">
         <div className="flex items-start mb-3">
           <img 
-            src={user?.profilePicture || "https://via.placeholder.com/40"} 
+            src={user?.profilePicture || "/default-avatar.jpg"} 
             alt={user?.username || "You"} 
             className="h-10 w-10 rounded-full object-cover mr-3"
           />

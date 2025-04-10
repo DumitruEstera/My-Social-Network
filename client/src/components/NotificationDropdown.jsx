@@ -132,7 +132,7 @@ const getNotificationLink = (notification) => {
                       >
                         {/* User Avatar */}
                         <img
-                          src={notification.sender?.profilePicture || "https://via.placeholder.com/40"}
+                          src={notification.sender?.profilePicture || "/default-avatar.jpg"}
                           alt={notification.sender?.username || "User"}
                           className="h-10 w-10 rounded-full object-cover mr-3"
                         />

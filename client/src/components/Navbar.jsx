@@ -53,7 +53,7 @@ export default function Navbar() {
             <>
               <div className="flex items-center">
                 <img 
-                  src={user?.profilePicture || "https://via.placeholder.com/32"} 
+                  src={user?.profilePicture || "/default-avatar.jpg"} 
                   alt={user?.username || 'User'} 
                   className="h-8 w-8 rounded-full object-cover mr-2"
                 />

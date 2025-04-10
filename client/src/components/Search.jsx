@@ -65,7 +65,7 @@ export default function Search() {
           {users.map((user) => (
             <div key={user._id} className="bg-white p-4 rounded-lg shadow flex items-center">
               <img
-                src={user.profilePicture || "https://via.placeholder.com/50"}
+                src={user.profilePicture || "/default-avatar.jpg"}
                 alt={user.username}
                 className="h-12 w-12 rounded-full object-cover mr-4"
               />

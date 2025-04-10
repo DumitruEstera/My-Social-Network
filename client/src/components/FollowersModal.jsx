@@ -172,7 +172,7 @@ export default function FollowersModal({ isOpen, onClose, type, userId, title })
                     onClick={onClose}
                   >
                     <img 
-                      src={user.profilePicture || "https://via.placeholder.com/40"} 
+                      src={user.profilePicture || "/default-avatar.jpg"} 
                       alt={user.username} 
                       className="h-10 w-10 rounded-full object-cover mr-3"
                     />
