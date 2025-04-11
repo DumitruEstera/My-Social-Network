@@ -109,4 +109,77 @@ router.get("/stats", async (req, res) => {
   }
 });
 
+// NEW ENDPOINT: Get follower statistics
+router.get("/follower-stats", async (req, res) => {
+  try {
+    const usersCollection = await db.collection("users");
+    
+    // Get all users with their follower/following info
+    const users = await usersCollection.find({}, { 
+      projection: { 
+        username: 1, 
+        followers: 1, 
+        following: 1, 
+        profilePicture: 1, 
+        email: 1, 
+        blocked: 1,
+        isAdmin: 1 
+      } 
+    }).toArray();
+    
+    // Calculate follower count for each user
+    const usersWithCounts = users.map(user => ({
+      _id: user._id.toString(),
+      username: user.username,
+      email: user.email,
+      profilePicture: user.profilePicture,
+      blocked: user.blocked || false,
+      isAdmin: user.isAdmin || false,
+      followerCount: (user.followers || []).length,
+      followingCount: (user.following || []).length
+    }));
+    
+    // Sort by follower count (descending) to get top users
+    const topUsers = [...usersWithCounts].sort((a, b) => b.followerCount - a.followerCount);
+    
+    // Process follow relationships to show who follows who
+    const followRelationships = [];
+    
+    for (const user of users) {
+      // Get the users that this user follows
+      const followingUsers = [];
+      
+      if (user.following && user.following.length > 0) {
+        for (const followingId of user.following) {
+          const followingIdStr = followingId.toString();
+          const followedUser = users.find(u => u._id.toString() === followingIdStr);
+          
+          if (followedUser) {
+            followingUsers.push({
+              _id: followedUser._id.toString(),
+              username: followedUser.username
+            });
+          }
+        }
+      }
+      
+      // Create the relationship entry
+      followRelationships.push({
+        _id: user._id.toString(),
+        username: user.username,
+        following: followingUsers
+      });
+    }
+    
+    res.json({
+      topUsers: topUsers.slice(0, 10), // Top 10 users by followers
+      allUsers: usersWithCounts, // All users with their counts
+      followRelationships: followRelationships.filter(rel => rel.following.length > 0) // Only include users who follow someone
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Server error" });
+  }
+});
+
 export default router;
