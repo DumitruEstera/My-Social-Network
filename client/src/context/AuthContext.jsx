@@ -149,7 +149,8 @@ export function AuthProvider({ children }) {
     login,
     logout,
     changePassword,
-    isAuthenticated: !!token
+    isAuthenticated: !!token,
+    isAdmin: user?.isAdmin || false // Add this line to expose admin status
   };
 
   return (

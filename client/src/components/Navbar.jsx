@@ -5,7 +5,7 @@ import NotificationDropdown from "./NotificationDropdown";
 
 export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -82,6 +82,20 @@ export default function Navbar() {
               >
                 My Profile
               </NavLink>
+              
+              {/* Admin Button - Only show for admin users */}
+              {isAdmin && (
+                <NavLink 
+                  className={({ isActive }) =>
+                    `inline-flex items-center justify-center whitespace-nowrap text-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input ${
+                      isActive ? 'bg-purple-100 text-purple-800' : 'bg-purple-50 text-purple-700'
+                    } hover:bg-purple-100 h-9 rounded-md px-3`
+                  }
+                  to="/admin"
+                >
+                  Admin
+                </NavLink>
+              )}
               
               <NavLink 
                 className={({ isActive }) =>

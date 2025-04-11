@@ -29,7 +29,8 @@ router.post("/register", async (req, res) => {
     const userData = {
       username,
       email,
-      password: hashedPassword
+      password: hashedPassword,
+      isAdmin: false // Default to non-admin
     };
 
     // Save user to database

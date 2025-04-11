@@ -11,7 +11,8 @@ export const UserSchema = {
   profilePicture: String,
   bio: String,
   followers: Array,
-  following: Array
+  following: Array,
+  isAdmin: Boolean // Added isAdmin field
 };
 
 // Helper functions for user operations
@@ -19,7 +20,10 @@ export const createUser = async (db, userData) => {
   const collection = await db.collection("users");
   const newUser = {
     ...userData,
-    created_at: new Date()
+    created_at: new Date(),
+    followers: [],
+    following: [],
+    isAdmin: userData.isAdmin || false // Default to false if not provided
   };
   return await collection.insertOne(newUser);
 };

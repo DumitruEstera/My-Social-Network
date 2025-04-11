@@ -12,6 +12,8 @@ import CustomProfile from "./components/Profile"; // Make sure this matches the 
 import Search from "./components/Search";
 import Settings from "./components/Settings";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute"; // Import the new AdminRoute component
+import AdminPanel from "./components/AdminPanel"; // Import the AdminPanel component
 import { AuthProvider } from "./context/AuthContext";
 import { NotificationProvider } from "./context/NotificationContext";
 import SinglePost from "./components/SinglePost";
@@ -68,6 +70,14 @@ const router = createBrowserRouter([
           <ProtectedRoute>
             <Settings />
           </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/admin",
+        element: (
+          <AdminRoute>
+            <AdminPanel />
+          </AdminRoute>
         ),
       },
     ],
