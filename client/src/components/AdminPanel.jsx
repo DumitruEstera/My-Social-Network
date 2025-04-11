@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import FollowerNetwork from './FollowerNetwork';
@@ -9,7 +9,9 @@ export default function AdminPanel() {
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState(null);
   const [followerStats, setFollowerStats] = useState(null);
+  const [excessivePosters, setExcessivePosters] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingPosters, setLoadingPosters] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
@@ -64,6 +66,32 @@ export default function AdminPanel() {
       setError('Failed to load follower statistics');
     } finally {
       setLoading(false);
+    }
+  };
+  
+  // Fetch excessive posters (spam users)
+  const fetchExcessivePosters = async () => {
+    try {
+      setLoadingPosters(true);
+      setError('');
+      
+      const response = await fetch('http://localhost:5050/admin/excessive-posters', {
+        headers: {
+          'x-auth-token': token
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to load excessive posters data');
+      }
+
+      const data = await response.json();
+      setExcessivePosters(data);
+    } catch (err) {
+      console.error('Error fetching excessive posters:', err);
+      setError('Failed to load excessive posters data');
+    } finally {
+      setLoadingPosters(false);
     }
   };
 
@@ -125,6 +153,15 @@ export default function AdminPanel() {
         user._id === userId ? { ...user, blocked: data.blocked } : user
       ));
       
+      // If we have excessive posters and one of them is updated
+      if (excessivePosters.length > 0) {
+        setExcessivePosters(excessivePosters.map(item => 
+          item.user._id === userId 
+            ? { ...item, user: { ...item.user, blocked: data.blocked } } 
+            : item
+        ));
+      }
+      
       // Set success message
       setStatusMessage(`User ${data.blocked ? 'blocked' : 'unblocked'} successfully`);
       
@@ -149,6 +186,26 @@ export default function AdminPanel() {
       day: 'numeric' 
     });
   };
+  
+  // Format date with time
+  const formatDateTime = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+  
+  // Fetch data when tab changes
+  useEffect(() => {
+    if (activeTab === 'excessive-posters') {
+      fetchExcessivePosters();
+    }
+  }, [activeTab]);
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -177,7 +234,7 @@ export default function AdminPanel() {
       )}
       
       {/* Tabs */}
-      <div className="flex border-b mb-6">
+      <div className="flex border-b mb-6 overflow-x-auto">
         <button
           onClick={() => setActiveTab('users')}
           className={`py-2 px-4 font-medium ${
@@ -187,6 +244,16 @@ export default function AdminPanel() {
           }`}
         >
           User Management
+        </button>
+        <button
+          onClick={() => setActiveTab('excessive-posters')}
+          className={`py-2 px-4 font-medium ${
+            activeTab === 'excessive-posters'
+              ? 'text-indigo-600 border-b-2 border-indigo-600'
+              : 'text-gray-500 hover:text-indigo-600'
+          }`}
+        >
+          Spam Detection
         </button>
         <button
           onClick={() => setActiveTab('top-accounts')}
@@ -340,6 +407,97 @@ export default function AdminPanel() {
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+      
+      {/* Spam Detection Tab */}
+      {activeTab === 'excessive-posters' && (
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold mb-4">Spam Detection</h2>
+          <p className="text-gray-500 mb-6">
+            Users who have posted more than 5 posts today - this could indicate spamming behavior.
+          </p>
+          
+          {loadingPosters ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+            </div>
+          ) : excessivePosters.length === 0 ? (
+            <div className="bg-green-50 text-green-700 p-4 rounded-md">
+              No users have posted excessively today. Your community is behaving well!
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {excessivePosters.map((item) => (
+                <div key={item.user._id} className="border rounded-lg overflow-hidden">
+                  {/* User Header */}
+                  <div className="flex items-center justify-between p-4 bg-gray-50 border-b">
+                    <div className="flex items-center">
+                      <img 
+                        src={item.user.profilePicture || "/default-avatar.jpg"} 
+                        alt={item.user.username} 
+                        className="h-10 w-10 rounded-full object-cover mr-3"
+                      />
+                      <div>
+                        <p className="font-medium">{item.user.username}</p>
+                        <p className="text-xs text-gray-500">{item.user.email}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800 mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        {item.postCount} posts today
+                      </span>
+                      {!item.user.isAdmin && (
+                        <button
+                          onClick={() => handleToggleBlock(item.user._id, item.user.blocked)}
+                          disabled={actionLoading}
+                          className={`text-sm px-3 py-1 rounded-md ${
+                            item.user.blocked
+                              ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                              : 'bg-red-100 text-red-700 hover:bg-red-200'
+                          }`}
+                        >
+                          {item.user.blocked ? 'Unblock User' : 'Block User'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Recent Posts */}
+                  <div className="p-4">
+                    <h3 className="font-medium text-gray-700 mb-2">Recent Posts Sample:</h3>
+                    <div className="space-y-3">
+                      {item.latestPosts.map((post) => (
+                        <div key={post._id} className="p-3 bg-gray-50 rounded-md">
+                          <p className="text-gray-800">
+                            {post.content ? (
+                              post.content.length > 100 ? post.content.substring(0, 100) + '...' : post.content
+                            ) : (
+                              <span className="text-gray-500 italic">No text content (image post)</span>
+                            )}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Posted at {formatDateTime(post.createdAt)}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-3">
+                      <Link
+                        to={`/profile/${item.user._id}`}
+                        className="text-indigo-600 hover:underline text-sm"
+                      >
+                        View Full Profile & Posts
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
       

@@ -182,4 +182,73 @@ router.get("/follower-stats", async (req, res) => {
   }
 });
 
+// Get users who post excessively (more than 5 posts in a day)
+router.get("/excessive-posters", async (req, res) => {
+  try {
+    const postsCollection = await db.collection("posts");
+    
+    // Calculate the start of the current day
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Get posts from today
+    const todaysPosts = await postsCollection.find({
+      createdAt: { $gte: today }
+    }).toArray();
+    
+    // Count posts by author
+    const postCountByAuthor = {};
+    todaysPosts.forEach(post => {
+      const authorId = post.author.toString();
+      if (!postCountByAuthor[authorId]) {
+        postCountByAuthor[authorId] = {
+          count: 0,
+          posts: []
+        };
+      }
+      postCountByAuthor[authorId].count++;
+      postCountByAuthor[authorId].posts.push(post);
+    });
+    
+    // Filter authors with more than 5 posts
+    const excessiveAuthors = Object.keys(postCountByAuthor)
+      .filter(authorId => postCountByAuthor[authorId].count > 5)
+      .map(authorId => ({
+        authorId,
+        postCount: postCountByAuthor[authorId].count,
+        posts: postCountByAuthor[authorId].posts
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 3) // Get the 3 most recent posts
+      }));
+    
+    // Get user details for each author
+    const usersCollection = await db.collection("users");
+    const results = await Promise.all(excessiveAuthors.map(async (author) => {
+      const user = await usersCollection.findOne({ _id: new ObjectId(author.authorId) });
+      if (!user) return null;
+      
+      const { password, ...userWithoutPassword } = user;
+      return {
+        user: userWithoutPassword,
+        postCount: author.postCount,
+        latestPosts: author.posts.map(post => ({
+          _id: post._id,
+          content: post.content,
+          createdAt: post.createdAt
+        }))
+      };
+    }));
+    
+    // Filter out any null entries and sort by post count
+    const filteredResults = results
+      .filter(item => item !== null)
+      .sort((a, b) => b.postCount - a.postCount);
+    
+    res.json(filteredResults);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Server error" });
+  }
+});
+
 export default router;
