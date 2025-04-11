@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { handleBlockedUserError } from '../utils/AuthUtils';
 
 const AuthContext = createContext();
 
@@ -27,7 +28,15 @@ export function AuthProvider({ children }) {
             const userData = await response.json();
             setUser(userData);
           } else {
-            // If token is invalid, clear it
+            // If token is invalid or user is blocked
+            const errorData = await response.json();
+            
+            // Check if user is blocked
+            if (handleBlockedUserError(errorData.msg, logout)) {
+              return;
+            }
+            
+            // Otherwise, just clear the token
             localStorage.removeItem('token');
             setToken(null);
           }
@@ -123,6 +132,11 @@ export function AuthProvider({ children }) {
       const data = await response.json();
       
       if (!response.ok) {
+        // Check if user is blocked
+        if (handleBlockedUserError(data.msg, logout)) {
+          return { success: false, message: data.msg };
+        }
+        
         throw new Error(data.msg || 'Password change failed');
       }
 
@@ -150,7 +164,7 @@ export function AuthProvider({ children }) {
     logout,
     changePassword,
     isAuthenticated: !!token,
-    isAdmin: user?.isAdmin || false // Add this line to expose admin status
+    isAdmin: user?.isAdmin || false
   };
 
   return (
