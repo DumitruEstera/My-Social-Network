@@ -12,7 +12,7 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isGuestMode, setIsGuestMode] = useState(localStorage.getItem('guestMode') === 'true');
+  const [isGuestMode, setIsGuestMode] = useState(false);
 
   useEffect(() => {
     // If there's a token in localStorage, try to get user data

@@ -49,7 +49,7 @@ export default function Register() {
     });
 
     if (success) {
-      navigate("/");
+      navigate("/feed", { replace: true });  // Navigate to feed explicitly
     }
   };
 

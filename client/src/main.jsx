@@ -34,6 +34,26 @@ function RequiresAuthOrGuest({ children }) {
   return children;
 }
 
+function RequiresAuth({ children }) {
+  const { isAuthenticated, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    // If not authenticated, redirect to login
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+}
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -41,6 +61,14 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
+        element: (
+          <RequiresAuth>
+            <Feed />
+          </RequiresAuth>
+        ),
+      },
+      {
+        path: "/feed",
         element: (
           <RequiresAuthOrGuest>
             <Feed />

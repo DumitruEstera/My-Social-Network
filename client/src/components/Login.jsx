@@ -30,7 +30,7 @@ export default function Login() {
 
     const success = await login(formData.email, formData.password);
     if (success) {
-      navigate("/");
+      navigate("/feed", { replace: true });  // Navigate to feed explicitly
     }
   };
 
