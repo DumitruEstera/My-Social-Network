@@ -33,7 +33,7 @@ export const formatCommentWithMentions = (text, handleProfileClick) => {
             <span 
               key={i} 
               onClick={() => handleProfileClick(username)}
-              className="text-blue-600 hover:underline font-medium cursor-pointer"
+              className="text-orange-700 font-medium hover:text-orange-900 cursor-pointer"
             >
               {parts[i]}
             </span>

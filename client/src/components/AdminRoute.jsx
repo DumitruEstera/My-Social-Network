@@ -6,10 +6,13 @@ export default function AdminRoute({ children }) {
   const location = useLocation();
 
   if (loading) {
-    // Show loading indicator while checking authentication status
+    // Show loading indicator with the orange/amber color scheme
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+      <div className="flex justify-center items-center h-screen bg-amber-50">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-14 w-14 border-4 border-amber-100 border-t-4 border-t-orange-900"></div>
+          <p className="mt-4 text-orange-900 font-medium">Loading...</p>
+        </div>
       </div>
     );
   }

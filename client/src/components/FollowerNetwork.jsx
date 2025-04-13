@@ -87,10 +87,10 @@ export default function FollowerNetwork({ followerStats, loading }) {
       .style("position", "absolute")
       .style("visibility", "hidden")
       .style("background-color", "white")
-      .style("border", "1px solid #ddd")
-      .style("border-radius", "6px")
-      .style("padding", "10px")
-      .style("box-shadow", "0 2px 4px rgba(0,0,0,0.1)")
+      .style("border", "1px solid rgb(251, 243, 219)") // amber-50
+      .style("border-radius", "0.75rem") // rounded-xl
+      .style("padding", "12px")
+      .style("box-shadow", "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)")
       .style("pointer-events", "none")
       .style("z-index", 1000);
 
@@ -103,7 +103,7 @@ export default function FollowerNetwork({ followerStats, loading }) {
 
     // Add links
     const link = g.append("g")
-      .attr("stroke", "#999")
+      .attr("stroke", "#ccc")
       .attr("stroke-opacity", 0.6)
       .selectAll("line")
       .data(links)
@@ -157,7 +157,7 @@ export default function FollowerNetwork({ followerStats, loading }) {
       .attr("markerHeight", 6)
       .attr("orient", "auto")
       .append("path")
-      .attr("fill", "#999")
+      .attr("fill", "#ccc")
       .attr("d", "M0,-5L10,0L0,5");
 
     // Add arrow to links
@@ -187,7 +187,7 @@ export default function FollowerNetwork({ followerStats, loading }) {
     function getNodeColor(d) {
       if (d.isAdmin) return "#9333ea"; // Purple for admin
       if (d.blocked) return "#ef4444"; // Red for blocked
-      return "#3b82f6"; // Blue for regular users
+      return "#c2410c"; // orange-900 for regular users
     }
 
     // Tooltip functions
@@ -195,7 +195,7 @@ export default function FollowerNetwork({ followerStats, loading }) {
       tooltip
         .html(`
           <div>
-            <div class="font-bold">${d.username}</div>
+            <div class="font-bold text-gray-900">${d.username}</div>
             <div class="text-sm text-gray-600">${d.email}</div>
             <div class="mt-1">
               <span class="font-medium">${d.followerCount}</span> followers, 
@@ -251,25 +251,25 @@ export default function FollowerNetwork({ followerStats, loading }) {
   }, [followerStats, loading, graphWidth, graphHeight]);
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-xl font-semibold mb-2">User Follower Network</h2>
-      <p className="text-gray-500 mb-4">
+    <div className="bg-white rounded-xl shadow-md p-6 border border-amber-50 transition duration-300 hover:shadow-lg">
+      <h2 className="text-xl font-semibold text-orange-900 mb-2">User Follower Network</h2>
+      <p className="text-gray-600 mb-4">
         Visualizing follow relationships between users. Larger nodes indicate more followers.
       </p>
       
-      <div className="bg-gray-50 border rounded-lg p-4 mb-4">
+      <div className="bg-amber-50 border border-amber-100 rounded-lg p-4 mb-4">
         <div className="flex flex-wrap gap-3">
           <div className="flex items-center">
-            <div className="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
-            <span className="text-sm">Regular users</span>
+            <div className="w-3 h-3 rounded-full bg-orange-900 mr-2"></div>
+            <span className="text-sm text-gray-700">Regular users</span>
           </div>
           <div className="flex items-center">
             <div className="w-3 h-3 rounded-full bg-purple-600 mr-2"></div>
-            <span className="text-sm">Admin users</span>
+            <span className="text-sm text-gray-700">Admin users</span>
           </div>
           <div className="flex items-center">
             <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
-            <span className="text-sm">Blocked users</span>
+            <span className="text-sm text-gray-700">Blocked users</span>
           </div>
         </div>
         <div className="text-sm text-gray-600 mt-2">
@@ -283,14 +283,17 @@ export default function FollowerNetwork({ followerStats, loading }) {
         <div className="w-full md:w-3/4 relative">
           {loading ? (
             <div className="flex justify-center items-center h-96">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+              <div className="flex flex-col items-center">
+                <div className="animate-spin rounded-full h-10 w-10 border-4 border-amber-100 border-t-4 border-t-orange-900"></div>
+                <p className="mt-4 text-orange-900 font-medium">Loading network data...</p>
+              </div>
             </div>
           ) : !followerStats ? (
             <div className="text-center py-12 text-gray-500">
               No follower data available.
             </div>
           ) : (
-            <div className="border rounded-lg overflow-hidden bg-white" style={{ height: graphHeight }}>
+            <div className="border border-amber-50 rounded-lg overflow-hidden bg-white" style={{ height: graphHeight }}>
               <svg ref={svgRef} className="w-full h-full"></svg>
               <div ref={tooltipRef}></div>
             </div>
@@ -299,27 +302,27 @@ export default function FollowerNetwork({ followerStats, loading }) {
         
         {selectedUser && (
           <div className="w-full md:w-1/4">
-            <div className="bg-white border rounded-lg p-4 sticky top-4">
+            <div className="bg-white border border-amber-50 rounded-lg p-4 sticky top-4 shadow-md transition duration-300 hover:shadow-lg">
               <div className="flex items-center mb-3">
                 <img 
                   src={selectedUser.profilePicture || "/default-avatar.jpg"}
                   alt={selectedUser.username}
-                  className="w-12 h-12 rounded-full mr-3 object-cover"
+                  className="w-12 h-12 rounded-full mr-3 object-cover border-2 border-amber-100 shadow-sm"
                 />
                 <div>
-                  <h3 className="font-bold">{selectedUser.username}</h3>
+                  <h3 className="font-bold text-gray-900">{selectedUser.username}</h3>
                   <p className="text-sm text-gray-600">{selectedUser.email}</p>
                 </div>
               </div>
               
               <div className="grid grid-cols-2 gap-2 mb-3">
-                <div className="bg-blue-50 rounded p-2 text-center">
-                  <div className="text-lg font-bold text-blue-700">{selectedUser.followerCount}</div>
-                  <div className="text-xs text-blue-600">Followers</div>
+                <div className="bg-amber-50 rounded-lg p-2 text-center border border-amber-100">
+                  <div className="text-lg font-bold text-orange-900">{selectedUser.followerCount}</div>
+                  <div className="text-xs text-gray-700">Followers</div>
                 </div>
-                <div className="bg-green-50 rounded p-2 text-center">
-                  <div className="text-lg font-bold text-green-700">{selectedUser.followingCount}</div>
-                  <div className="text-xs text-green-600">Following</div>
+                <div className="bg-amber-50 rounded-lg p-2 text-center border border-amber-100">
+                  <div className="text-lg font-bold text-orange-900">{selectedUser.followingCount}</div>
+                  <div className="text-xs text-gray-700">Following</div>
                 </div>
               </div>
               
@@ -337,7 +340,7 @@ export default function FollowerNetwork({ followerStats, loading }) {
               
               <Link
                 to={`/profile/${selectedUser.id}`}
-                className="block w-full bg-indigo-600 text-white text-center py-2 rounded hover:bg-indigo-700"
+                className="block w-full bg-orange-900 text-white text-center py-2 rounded-lg hover:bg-yellow-600 transition"
               >
                 View Profile
               </Link>

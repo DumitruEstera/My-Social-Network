@@ -209,68 +209,71 @@ export default function AdminPanel() {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Admin Panel</h1>
+      <div className="mb-8 text-center">
+        <h1 className="text-3xl font-bold text-orange-900 mb-2">Admin Panel</h1>
+        <p className="text-yellow-600 italic">Manage users and monitor platform activity</p>
+      </div>
       
       {/* Stats Cards */}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-lg shadow p-4">
-            <h3 className="text-lg font-semibold text-gray-600">Total Users</h3>
-            <p className="text-3xl font-bold">{stats.totalUsers}</p>
+          <div className="bg-white rounded-xl shadow-md p-5 border border-amber-50 transition duration-300 hover:shadow-lg">
+            <h3 className="text-lg font-semibold text-gray-700 mb-1">Total Users</h3>
+            <p className="text-3xl font-bold text-orange-900">{stats.totalUsers}</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-4">
-            <h3 className="text-lg font-semibold text-gray-600">Active Users</h3>
+          <div className="bg-white rounded-xl shadow-md p-5 border border-amber-50 transition duration-300 hover:shadow-lg">
+            <h3 className="text-lg font-semibold text-gray-700 mb-1">Active Users</h3>
             <p className="text-3xl font-bold text-green-600">{stats.activeUsers}</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-4">
-            <h3 className="text-lg font-semibold text-gray-600">Blocked Users</h3>
+          <div className="bg-white rounded-xl shadow-md p-5 border border-amber-50 transition duration-300 hover:shadow-lg">
+            <h3 className="text-lg font-semibold text-gray-700 mb-1">Blocked Users</h3>
             <p className="text-3xl font-bold text-red-600">{stats.blockedUsers}</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-4">
-            <h3 className="text-lg font-semibold text-gray-600">New Users (7d)</h3>
+          <div className="bg-white rounded-xl shadow-md p-5 border border-amber-50 transition duration-300 hover:shadow-lg">
+            <h3 className="text-lg font-semibold text-gray-700 mb-1">New Users (7d)</h3>
             <p className="text-3xl font-bold text-blue-600">{stats.newUsers}</p>
           </div>
         </div>
       )}
       
       {/* Tabs */}
-      <div className="flex border-b mb-6 overflow-x-auto">
+      <div className="flex border-b border-amber-100 mb-6 overflow-x-auto">
         <button
           onClick={() => setActiveTab('users')}
-          className={`py-2 px-4 font-medium ${
+          className={`py-3 px-6 font-medium ${
             activeTab === 'users'
-              ? 'text-indigo-600 border-b-2 border-indigo-600'
-              : 'text-gray-500 hover:text-indigo-600'
+              ? 'text-orange-900 border-b-2 border-orange-900'
+              : 'text-gray-600 hover:text-orange-900 transition'
           }`}
         >
           User Management
         </button>
         <button
           onClick={() => setActiveTab('excessive-posters')}
-          className={`py-2 px-4 font-medium ${
+          className={`py-3 px-6 font-medium ${
             activeTab === 'excessive-posters'
-              ? 'text-indigo-600 border-b-2 border-indigo-600'
-              : 'text-gray-500 hover:text-indigo-600'
+              ? 'text-orange-900 border-b-2 border-orange-900'
+              : 'text-gray-600 hover:text-orange-900 transition'
           }`}
         >
           Spam Detection
         </button>
         <button
           onClick={() => setActiveTab('top-accounts')}
-          className={`py-2 px-4 font-medium ${
+          className={`py-3 px-6 font-medium ${
             activeTab === 'top-accounts'
-              ? 'text-indigo-600 border-b-2 border-indigo-600'
-              : 'text-gray-500 hover:text-indigo-600'
+              ? 'text-orange-900 border-b-2 border-orange-900'
+              : 'text-gray-600 hover:text-orange-900 transition'
           }`}
         >
           Top Accounts
         </button>
         <button
           onClick={() => setActiveTab('follower-network')}
-          className={`py-2 px-4 font-medium ${
+          className={`py-3 px-6 font-medium ${
             activeTab === 'follower-network'
-              ? 'text-indigo-600 border-b-2 border-indigo-600'
-              : 'text-gray-500 hover:text-indigo-600'
+              ? 'text-orange-900 border-b-2 border-orange-900'
+              : 'text-gray-600 hover:text-orange-900 transition'
           }`}
         >
           Follower Network
@@ -279,8 +282,8 @@ export default function AdminPanel() {
       
       {/* User Management Tab */}
       {activeTab === 'users' && (
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">User Management</h2>
+        <div className="bg-white rounded-xl shadow-md p-6 border border-amber-50">
+          <h2 className="text-xl font-semibold text-orange-900 mb-4">User Management</h2>
           
           {/* Search Bar */}
           <form onSubmit={handleSearch} className="mb-6">
@@ -288,13 +291,13 @@ export default function AdminPanel() {
               <input
                 type="text"
                 placeholder="Search users by username or email..."
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="flex-1 px-4 py-3 border border-amber-100 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               <button
                 type="submit"
-                className="px-4 py-2 bg-indigo-600 text-white rounded-r-md hover:bg-indigo-700"
+                className="px-5 py-3 bg-orange-900 text-white rounded-r-lg hover:bg-yellow-600 transition"
                 disabled={loading}
               >
                 {loading ? 'Searching...' : 'Search'}
@@ -304,10 +307,10 @@ export default function AdminPanel() {
           
           {/* Status Message */}
           {statusMessage && (
-            <div className={`mb-4 p-3 rounded-md ${
+            <div className={`mb-4 p-4 rounded-lg ${
               statusMessage.includes('successfully') 
-                ? 'bg-green-50 text-green-700' 
-                : 'bg-red-50 text-red-700'
+                ? 'bg-green-50 text-green-700 border border-green-200' 
+                : 'bg-red-50 text-red-700 border border-red-200'
             }`}>
               {statusMessage}
             </div>
@@ -315,16 +318,16 @@ export default function AdminPanel() {
           
           {/* Error Message */}
           {error && (
-            <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md">
+            <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-lg border border-red-200">
               {error}
             </div>
           )}
           
           {/* Users Table */}
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white">
+          <div className="overflow-x-auto border border-amber-50 rounded-xl">
+            <table className="min-w-full bg-white rounded-xl overflow-hidden">
               <thead>
-                <tr className="bg-gray-100 text-gray-700 uppercase text-sm">
+                <tr className="bg-amber-50 text-gray-700 uppercase text-sm">
                   <th className="py-3 px-4 text-left">User</th>
                   <th className="py-3 px-4 text-left">Email</th>
                   <th className="py-3 px-4 text-left">Joined</th>
@@ -332,33 +335,36 @@ export default function AdminPanel() {
                   <th className="py-3 px-4 text-left">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-amber-50">
                 {loading ? (
                   <tr>
-                    <td colSpan="5" className="py-4 text-center">
+                    <td colSpan="5" className="py-10 text-center">
                       <div className="flex justify-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
+                        <div className="flex flex-col items-center">
+                          <div className="animate-spin rounded-full h-10 w-10 border-4 border-amber-100 border-t-4 border-t-orange-900"></div>
+                          <p className="mt-4 text-orange-900 font-medium">Loading users...</p>
+                        </div>
                       </div>
                     </td>
                   </tr>
                 ) : users.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="py-4 text-center text-gray-500">
+                    <td colSpan="5" className="py-10 text-center text-gray-500">
                       {searchQuery ? 'No users found matching your search.' : 'No users found.'}
                     </td>
                   </tr>
                 ) : (
                   users.map(user => (
-                    <tr key={user._id} className="hover:bg-gray-50">
-                      <td className="py-3 px-4">
+                    <tr key={user._id} className="hover:bg-amber-50 transition">
+                      <td className="py-4 px-4">
                         <div className="flex items-center">
                           <img 
                             src={user.profilePicture || "/default-avatar.jpg"} 
                             alt={user.username} 
-                            className="h-10 w-10 rounded-full object-cover mr-3"
+                            className="h-10 w-10 rounded-full object-cover border-2 border-amber-100 shadow-sm mr-3"
                           />
                           <div>
-                            <p className="font-medium">{user.username}</p>
+                            <p className="font-medium text-gray-800">{user.username}</p>
                             {user.isAdmin && (
                               <span className="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">
                                 Admin
@@ -367,9 +373,9 @@ export default function AdminPanel() {
                           </div>
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-gray-600">{user.email}</td>
-                      <td className="py-3 px-4 text-gray-600">{formatDate(user.created_at)}</td>
-                      <td className="py-3 px-4">
+                      <td className="py-4 px-4 text-gray-600">{user.email}</td>
+                      <td className="py-4 px-4 text-gray-600">{formatDate(user.created_at)}</td>
+                      <td className="py-4 px-4">
                         {user.isAdmin ? (
                           <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
                             Administrator
@@ -384,14 +390,14 @@ export default function AdminPanel() {
                           </span>
                         )}
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-4 px-4">
                         {user.isAdmin ? (
                           <span className="text-xs text-gray-500">Admin users cannot be blocked</span>
                         ) : (
                           <button
                             onClick={() => handleToggleBlock(user._id, user.blocked)}
                             disabled={actionLoading}
-                            className={`text-sm px-3 py-1 rounded-md ${
+                            className={`text-sm px-3 py-1.5 rounded-lg transition ${
                               user.blocked
                                 ? 'bg-green-100 text-green-700 hover:bg-green-200'
                                 : 'bg-red-100 text-red-700 hover:bg-red-200'
@@ -412,34 +418,42 @@ export default function AdminPanel() {
       
       {/* Spam Detection Tab */}
       {activeTab === 'excessive-posters' && (
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Spam Detection</h2>
-          <p className="text-gray-500 mb-6">
+        <div className="bg-white rounded-xl shadow-md p-6 border border-amber-50">
+          <h2 className="text-xl font-semibold text-orange-900 mb-4">Spam Detection</h2>
+          <p className="text-gray-600 mb-6">
             Users who have posted more than 5 posts today - this could indicate spamming behavior.
           </p>
           
           {loadingPosters ? (
-            <div className="flex justify-center py-8">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+            <div className="flex justify-center py-10">
+              <div className="flex flex-col items-center">
+                <div className="animate-spin rounded-full h-10 w-10 border-4 border-amber-100 border-t-4 border-t-orange-900"></div>
+                <p className="mt-4 text-orange-900 font-medium">Loading data...</p>
+              </div>
             </div>
           ) : excessivePosters.length === 0 ? (
-            <div className="bg-green-50 text-green-700 p-4 rounded-md">
-              No users have posted excessively today. Your community is behaving well!
+            <div className="bg-green-50 text-green-700 p-5 rounded-lg border border-green-200">
+              <div className="flex items-start">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span>No users have posted excessively today. Your community is behaving well!</span>
+              </div>
             </div>
           ) : (
             <div className="space-y-6">
               {excessivePosters.map((item) => (
-                <div key={item.user._id} className="border rounded-lg overflow-hidden">
+                <div key={item.user._id} className="border border-amber-50 rounded-xl overflow-hidden shadow-md transition duration-300 hover:shadow-lg">
                   {/* User Header */}
-                  <div className="flex items-center justify-between p-4 bg-gray-50 border-b">
+                  <div className="flex items-center justify-between p-4 bg-amber-50 border-b border-amber-100">
                     <div className="flex items-center">
                       <img 
                         src={item.user.profilePicture || "/default-avatar.jpg"} 
                         alt={item.user.username} 
-                        className="h-10 w-10 rounded-full object-cover mr-3"
+                        className="h-12 w-12 rounded-full object-cover border-2 border-amber-100 shadow-sm mr-3"
                       />
                       <div>
-                        <p className="font-medium">{item.user.username}</p>
+                        <p className="font-medium text-gray-800">{item.user.username}</p>
                         <p className="text-xs text-gray-500">{item.user.email}</p>
                       </div>
                     </div>
@@ -454,7 +468,7 @@ export default function AdminPanel() {
                         <button
                           onClick={() => handleToggleBlock(item.user._id, item.user.blocked)}
                           disabled={actionLoading}
-                          className={`text-sm px-3 py-1 rounded-md ${
+                          className={`text-sm px-3 py-1.5 rounded-lg transition ${
                             item.user.blocked
                               ? 'bg-green-100 text-green-700 hover:bg-green-200'
                               : 'bg-red-100 text-red-700 hover:bg-red-200'
@@ -468,10 +482,10 @@ export default function AdminPanel() {
                   
                   {/* Recent Posts */}
                   <div className="p-4">
-                    <h3 className="font-medium text-gray-700 mb-2">Recent Posts Sample:</h3>
+                    <h3 className="font-medium text-gray-700 mb-3">Recent Posts Sample:</h3>
                     <div className="space-y-3">
                       {item.latestPosts.map((post) => (
-                        <div key={post._id} className="p-3 bg-gray-50 rounded-md">
+                        <div key={post._id} className="p-3 bg-amber-50 rounded-lg border border-amber-100">
                           <p className="text-gray-800">
                             {post.content ? (
                               post.content.length > 100 ? post.content.substring(0, 100) + '...' : post.content
@@ -488,7 +502,7 @@ export default function AdminPanel() {
                     <div className="mt-3">
                       <Link
                         to={`/profile/${item.user._id}`}
-                        className="text-indigo-600 hover:underline text-sm"
+                        className="text-orange-900 hover:text-yellow-600 font-medium transition"
                       >
                         View Full Profile & Posts
                       </Link>
@@ -503,22 +517,25 @@ export default function AdminPanel() {
       
       {/* Top Accounts Tab */}
       {activeTab === 'top-accounts' && (
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Top Accounts by Followers</h2>
+        <div className="bg-white rounded-xl shadow-md p-6 border border-amber-50">
+          <h2 className="text-xl font-semibold text-orange-900 mb-4">Top Accounts by Followers</h2>
           
           {loading ? (
-            <div className="flex justify-center py-8">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+            <div className="flex justify-center py-10">
+              <div className="flex flex-col items-center">
+                <div className="animate-spin rounded-full h-10 w-10 border-4 border-amber-100 border-t-4 border-t-orange-900"></div>
+                <p className="mt-4 text-orange-900 font-medium">Loading top accounts...</p>
+              </div>
             </div>
           ) : !followerStats ? (
-            <div className="py-8 text-center text-gray-500">
+            <div className="py-10 text-center text-gray-500">
               No follower statistics available.
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full bg-white">
+            <div className="overflow-x-auto border border-amber-50 rounded-xl">
+              <table className="min-w-full bg-white rounded-xl overflow-hidden">
                 <thead>
-                  <tr className="bg-gray-100 text-gray-700 uppercase text-sm">
+                  <tr className="bg-amber-50 text-gray-700 uppercase text-sm">
                     <th className="py-3 px-4 text-left">Rank</th>
                     <th className="py-3 px-4 text-left">User</th>
                     <th className="py-3 px-4 text-left">Followers</th>
@@ -527,37 +544,37 @@ export default function AdminPanel() {
                     <th className="py-3 px-4 text-left">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-amber-50">
                   {followerStats.topUsers.length === 0 ? (
                     <tr>
-                      <td colSpan="6" className="py-4 text-center text-gray-500">
+                      <td colSpan="6" className="py-10 text-center text-gray-500">
                         No users with followers found.
                       </td>
                     </tr>
                   ) : (
                     followerStats.topUsers.map((user, index) => (
-                      <tr key={user._id} className="hover:bg-gray-50">
-                        <td className="py-3 px-4 font-semibold">{index + 1}</td>
-                        <td className="py-3 px-4">
+                      <tr key={user._id} className="hover:bg-amber-50 transition">
+                        <td className="py-4 px-4 font-semibold text-orange-900">{index + 1}</td>
+                        <td className="py-4 px-4">
                           <div className="flex items-center">
                             <img 
                               src={user.profilePicture || "/default-avatar.jpg"} 
                               alt={user.username} 
-                              className="h-10 w-10 rounded-full object-cover mr-3"
+                              className="h-10 w-10 rounded-full object-cover border-2 border-amber-100 shadow-sm mr-3"
                             />
                             <div>
-                              <p className="font-medium">{user.username}</p>
+                              <p className="font-medium text-gray-800">{user.username}</p>
                               <p className="text-xs text-gray-500">{user.email}</p>
                             </div>
                           </div>
                         </td>
-                        <td className="py-3 px-4">
-                          <span className="font-semibold">{user.followerCount}</span>
+                        <td className="py-4 px-4">
+                          <span className="font-semibold text-orange-900">{user.followerCount}</span>
                         </td>
-                        <td className="py-3 px-4">
-                          <span>{user.followingCount}</span>
+                        <td className="py-4 px-4">
+                          <span className="text-gray-700">{user.followingCount}</span>
                         </td>
-                        <td className="py-3 px-4">
+                        <td className="py-4 px-4">
                           {user.isAdmin ? (
                             <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
                               Admin
@@ -572,10 +589,10 @@ export default function AdminPanel() {
                             </span>
                           )}
                         </td>
-                        <td className="py-3 px-4">
+                        <td className="py-4 px-4">
                           <Link
                             to={`/profile/${user._id}`}
-                            className="text-indigo-600 hover:underline text-sm mr-3"
+                            className="text-orange-900 hover:text-yellow-600 font-medium transition mr-3"
                           >
                             View Profile
                           </Link>
@@ -584,7 +601,7 @@ export default function AdminPanel() {
                             <button
                               onClick={() => handleToggleBlock(user._id, user.blocked)}
                               disabled={actionLoading}
-                              className={`text-sm px-2 py-1 rounded-md ${
+                              className={`text-sm px-3 py-1.5 rounded-lg transition ${
                                 user.blocked
                                   ? 'bg-green-100 text-green-700 hover:bg-green-200'
                                   : 'bg-red-100 text-red-700 hover:bg-red-200'
