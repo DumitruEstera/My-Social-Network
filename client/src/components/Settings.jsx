@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import GuestPrompt from "./GuestPrompt"; // Add this import
 
 export default function Settings() {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -10,11 +11,23 @@ export default function Settings() {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   
-  const { changePassword } = useAuth();
+  // Add state for guest prompt
+  const [showGuestPrompt, setShowGuestPrompt] = useState(false);
+  const [promptAction, setPromptAction] = useState("");
+  
+  const { changePassword, isGuestMode } = useAuth(); // Add isGuestMode
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Check if user is in guest mode
+    if (isGuestMode) {
+      setPromptAction("change your password");
+      setShowGuestPrompt(true);
+      return;
+    }
+    
     setError("");
     setSuccess("");
     
@@ -80,6 +93,18 @@ export default function Settings() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
             <span>{success}</span>
+          </div>
+        )}
+        
+        {/* Guest mode message */}
+        {isGuestMode && (
+          <div className="bg-amber-50 text-gray-700 p-5 rounded-lg mb-6 border border-amber-100">
+            <div className="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p>You're browsing in guest mode. Create an account to manage your profile settings.</p>
+            </div>
           </div>
         )}
         
@@ -175,6 +200,13 @@ export default function Settings() {
           </div>
         </div>
       </div>
+
+      {/* Guest Prompt Modal */}
+      <GuestPrompt 
+        isOpen={showGuestPrompt} 
+        onClose={() => setShowGuestPrompt(false)}
+        action={promptAction}
+      />
     </div>
   );
 }
