@@ -5,6 +5,85 @@ import CommentItem from "./CommentItem";
 import FollowersModal from "./FollowersModal";
 import PhotoGallery from "./PhotoGallery"; 
 import PostMenu from "./PostMenu";
+import GuestPrompt from "./GuestPrompt";
+
+// Sample data for guest profile preview
+const SAMPLE_GUEST_PROFILE = {
+  _id: 'guest',
+  username: 'Guest User',
+  email: 'guest@example.com',
+  profilePicture: '/guest-avatar.jpg',
+  bio: 'This is a preview of the profile page in guest mode. Create an account to customize your own profile!',
+  followers: Array(8).fill(null),
+  following: Array(12).fill(null),
+  created_at: new Date().toISOString()
+};
+
+// Sample posts for guest profile preview
+const SAMPLE_GUEST_POSTS = [
+  {
+    _id: 'sample-guest-post-1',
+    content: 'Just joined Buzzly! Excited to connect with everyone here.',
+    createdAt: new Date(Date.now() - 2 * 86400000).toISOString(), // 2 days ago
+    likes: Array(24).fill(null),
+    comments: [
+      {
+        _id: 'sample-comment-1',
+        content: 'Welcome! You\'ll love it here.',
+        author: {
+          _id: 'sample-user-3',
+          username: 'SocialButterfly',
+          profilePicture: 'https://randomuser.me/api/portraits/women/23.jpg'
+        },
+        createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+        likes: Array(3).fill(null)
+      }
+    ],
+    author: {
+      _id: 'guest',
+      username: 'Guest User',
+      profilePicture: '/guest-avatar.jpg'
+    }
+  },
+  {
+    _id: 'sample-guest-post-2',
+    content: 'Check out this amazing sunset from yesterday!',
+    image: 'https://images.unsplash.com/photo-1502790671504-542ad42d5189?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+    likes: Array(42).fill(null),
+    comments: [
+      {
+        _id: 'sample-comment-2',
+        content: 'Stunning view! Where was this taken?',
+        author: {
+          _id: 'sample-user-4',
+          username: 'NatureExplorer',
+          profilePicture: 'https://randomuser.me/api/portraits/men/45.jpg'
+        },
+        createdAt: new Date(Date.now() - 43200000).toISOString(), // 12 hours ago
+        likes: Array(7).fill(null)
+      }
+    ],
+    author: {
+      _id: 'guest',
+      username: 'Guest User',
+      profilePicture: '/guest-avatar.jpg'
+    }
+  },
+  {
+    _id: 'sample-guest-post-3',
+    content: 'Just finished reading this amazing book. Highly recommend!',
+    image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
+    createdAt: new Date(Date.now() - 7 * 86400000).toISOString(), // 7 days ago
+    likes: Array(18).fill(null),
+    comments: [],
+    author: {
+      _id: 'guest',
+      username: 'Guest User',
+      profilePicture: '/guest-avatar.jpg'
+    }
+  }
+];
 
 export default function CustomProfile() {
   const [profileData, setProfileData] = useState(null);
@@ -17,8 +96,13 @@ export default function CustomProfile() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState(""); // "followers" or "following"
   const [activeTab, setActiveTab] = useState("posts"); // "posts" or "photos"
+  
+  // Add state for guest prompt
+  const [showGuestPrompt, setShowGuestPrompt] = useState(false);
+  const [promptAction, setPromptAction] = useState("");
+  
   const fileInputRef = useRef(null);
-  const { user, token } = useAuth();
+  const { user, token, isGuestMode } = useAuth(); // Include isGuestMode
   const { id } = useParams();
   
   const userId = id || user?._id;
@@ -27,6 +111,13 @@ export default function CustomProfile() {
   // Fetch profile data
   useEffect(() => {
     async function fetchProfileData() {
+      if (isGuestMode) {
+        // Use sample data for guest mode
+        setProfileData(SAMPLE_GUEST_PROFILE);
+        setBio(SAMPLE_GUEST_PROFILE.bio || "");
+        return;
+      }
+      
       if (!userId) return;
       
       try {
@@ -49,6 +140,13 @@ export default function CustomProfile() {
     }
 
     async function fetchUserPosts() {
+      if (isGuestMode) {
+        // Use sample posts for guest mode
+        setPosts(SAMPLE_GUEST_POSTS);
+        setLoading(false);
+        return;
+      }
+      
       if (!userId) return;
       
       try {
@@ -73,16 +171,28 @@ export default function CustomProfile() {
 
     fetchProfileData();
     fetchUserPosts();
-  }, [userId, token]);
+  }, [userId, token, isGuestMode]);
 
   // Handle opening the followers/following modal
   const openModal = (type) => {
+    if (isGuestMode) {
+      setPromptAction(`view ${type}`);
+      setShowGuestPrompt(true);
+      return;
+    }
+    
     setModalType(type);
     setModalOpen(true);
   };
 
   // Handle follow/unfollow
   const handleFollowToggle = async () => {
+    if (isGuestMode) {
+      setPromptAction("follow users");
+      setShowGuestPrompt(true);
+      return;
+    }
+    
     if (!profileData || isOwnProfile) return;
     
     try {
@@ -109,6 +219,12 @@ export default function CustomProfile() {
 
   // Handle profile update
   const handleProfileUpdate = async () => {
+    if (isGuestMode) {
+      setPromptAction("update your profile");
+      setShowGuestPrompt(true);
+      return;
+    }
+    
     try {
       const response = await fetch(`http://localhost:5050/users/${user._id}`, {
         method: "PATCH",
@@ -136,6 +252,12 @@ export default function CustomProfile() {
 
   // Handle profile picture upload
   const handleProfilePictureUpload = async (e) => {
+    if (isGuestMode) {
+      setPromptAction("update your profile picture");
+      setShowGuestPrompt(true);
+      return;
+    }
+    
     const file = e.target.files[0];
     if (!file) return;
 
@@ -188,6 +310,12 @@ export default function CustomProfile() {
 
   // Trigger file input click
   const triggerFileInput = () => {
+    if (isGuestMode) {
+      setPromptAction("update your profile picture");
+      setShowGuestPrompt(true);
+      return;
+    }
+    
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
@@ -201,6 +329,12 @@ export default function CustomProfile() {
 
   // Handle like
   const handleLike = async (postId) => {
+    if (isGuestMode) {
+      setPromptAction("like posts");
+      setShowGuestPrompt(true);
+      return;
+    }
+    
     try {
       await fetch(`http://localhost:5050/posts/${postId}/like`, {
         method: 'POST',
@@ -227,6 +361,12 @@ export default function CustomProfile() {
 
   // Handle comment
   const handleComment = async (postId, comment) => {
+    if (isGuestMode) {
+      setPromptAction("comment on posts");
+      setShowGuestPrompt(true);
+      return;
+    }
+    
     if (!comment.trim()) return;
     
     try {
@@ -286,6 +426,12 @@ export default function CustomProfile() {
 
     // Handle reply to a comment
     const handleReplyToComment = (commentToReply) => {
+      if (isGuestMode) {
+        setPromptAction("reply to comments");
+        setShowGuestPrompt(true);
+        return;
+      }
+      
       if (!commentToReply || !commentToReply.author) return;
       
       // Set comment input to include the @username tag
@@ -302,8 +448,14 @@ export default function CustomProfile() {
       }, 0);
     };
 
-    // Start editing a post
+    // Start editing the post
     const handleEditPost = () => {
+      if (isGuestMode) {
+        setPromptAction("edit posts");
+        setShowGuestPrompt(true);
+        return;
+      }
+      
       setIsEditing(true);
       setEditedContent(post.content || "");
       
@@ -315,8 +467,14 @@ export default function CustomProfile() {
       }, 0);
     };
 
-    // Save edited post
+    // Save the edited post
     const handleSaveEdit = async () => {
+      if (isGuestMode) {
+        setPromptAction("edit posts");
+        setShowGuestPrompt(true);
+        return;
+      }
+      
       if (!editedContent.trim()) {
         alert("Post content cannot be empty");
         return;
@@ -382,12 +540,14 @@ export default function CustomProfile() {
             </div>
           </div>
           
-          {/* Add Post Menu */}
-          <PostMenu 
-            post={post} 
-            onPostDeleted={handlePostDeleted}
-            onEditPost={handleEditPost}
-          />
+          {/* Add Post Menu - only for real users on their own posts */}
+          {!isGuestMode && post.author?._id === user?._id && (
+            <PostMenu 
+              post={post} 
+              onPostDeleted={handlePostDeleted}
+              onEditPost={handleEditPost}
+            />
+          )}
         </div>
         
         {/* Post Content */}
@@ -448,7 +608,14 @@ export default function CustomProfile() {
             <span>Like</span> ({post.likes?.length || 0})
           </button>
           <button 
-            onClick={() => setShowComments(!showComments)}
+            onClick={() => {
+              if (isGuestMode) {
+                setPromptAction("comment on posts");
+                setShowGuestPrompt(true);
+                return;
+              }
+              setShowComments(!showComments);
+            }}
             className="flex-1 flex items-center justify-center py-2 text-gray-600 hover:bg-gray-50 rounded-lg ml-1 transition"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -461,30 +628,46 @@ export default function CustomProfile() {
         {/* Comments Section */}
         {showComments && (
           <div>
-            {/* Add Comment Form */}
-            <form 
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleComment(post._id, comment);
-                setComment('');
-              }} 
-              className="flex mb-3"
-            >
-              <input
-                type="text"
-                placeholder="Write a comment..."
-                className="flex-1 p-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                ref={commentInputRef}
-              />
-              <button
-                type="submit"
-                className="px-4 bg-orange-900 text-white rounded-r-lg hover:bg-yellow-600 transition"
+            {isGuestMode ? (
+              // Guest mode comment prompt
+              <div className="bg-amber-50 p-4 rounded-lg mb-4 border border-amber-100">
+                <p className="text-gray-700 text-sm mb-2">Create an account to add comments</p>
+                <button
+                  onClick={() => {
+                    setPromptAction("comment on posts");
+                    setShowGuestPrompt(true);
+                  }}
+                  className="px-4 py-2 bg-orange-900 text-white text-sm rounded-lg hover:bg-yellow-600 transition"
+                >
+                  Sign Up Now
+                </button>
+              </div>
+            ) : (
+              // Comment form for logged-in users
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleComment(post._id, comment);
+                  setComment('');
+                }} 
+                className="flex mb-3"
               >
-                Post
-              </button>
-            </form>
+                <input
+                  type="text"
+                  placeholder="Write a comment..."
+                  className="flex-1 p-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  ref={commentInputRef}
+                />
+                <button
+                  type="submit"
+                  className="px-4 bg-orange-900 text-white rounded-r-lg hover:bg-yellow-600 transition"
+                >
+                  Post
+                </button>
+              </form>
+            )}
             
             {/* Comments List */}
             <div className="space-y-3">
@@ -496,6 +679,7 @@ export default function CustomProfile() {
                     postId={post._id}
                     onCommentUpdate={handleCommentUpdate}
                     onReply={handleReplyToComment}
+                    isGuestMode={isGuestMode}
                   />
                 ))
               ) : (
@@ -531,7 +715,7 @@ export default function CustomProfile() {
   }
 
   // Check if current user is following this profile
-  const isFollowing = user && profileData.followers?.some(
+  const isFollowing = !isGuestMode && user && profileData.followers?.some(
     followerId => {
       if (typeof followerId === 'string' && typeof user._id === 'string') {
         return followerId === user._id;
@@ -626,6 +810,12 @@ export default function CustomProfile() {
                 {isFollowing ? 'Unfollow' : 'Follow'}
               </button>
             )}
+            
+            {isGuestMode && isOwnProfile && (
+              <div className="mt-3 py-2 px-3 bg-amber-50 text-sm text-gray-700 rounded-lg border border-amber-100">
+                Create an account to customize your profile and interact with others
+              </div>
+            )}
           </div>
         </div>
         
@@ -664,7 +854,14 @@ export default function CustomProfile() {
               <p className="text-gray-800 leading-relaxed">{profileData.bio || "No bio yet."}</p>
               {isOwnProfile && (
                 <button
-                  onClick={() => setIsEditing(true)}
+                  onClick={() => {
+                    if (isGuestMode) {
+                      setPromptAction("edit your bio");
+                      setShowGuestPrompt(true);
+                      return;
+                    }
+                    setIsEditing(true);
+                  }}
                   className="mt-3 text-orange-900 hover:text-yellow-600 text-sm font-medium transition"
                 >
                   Edit bio
@@ -735,9 +932,16 @@ export default function CustomProfile() {
       ) : (
         <div className="bg-white rounded-xl shadow-md p-6 border border-amber-50">
           <h2 className="text-xl font-semibold text-orange-900 mb-6">Photos</h2>
-          <PhotoGallery posts={posts} />
+          <PhotoGallery posts={posts} isGuestMode={isGuestMode} />
         </div>
       )}
+      
+      {/* Guest Prompt */}
+      <GuestPrompt 
+        isOpen={showGuestPrompt} 
+        onClose={() => setShowGuestPrompt(false)}
+        action={promptAction}
+      />
     </div>
   );
 }
