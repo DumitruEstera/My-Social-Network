@@ -123,6 +123,23 @@ export default function SinglePost() {
     }));
   };
 
+  // First, add this new function after handleCommentUpdate
+  const handleCommentDelete = async (commentId) => {
+    try {
+      // Remove the comment from the post state immediately for a responsive UI
+      setPost(prevPost => {
+        if (!prevPost || !prevPost.comments) return prevPost;
+        
+        return {
+          ...prevPost,
+          comments: prevPost.comments.filter(comment => comment._id !== commentId)
+        };
+      });
+    } catch (error) {
+      console.error("Error handling comment deletion:", error);
+    }
+  };
+
   // Handle reply to a comment
   const handleReplyToComment = (commentToReply) => {
     if (!commentToReply || !commentToReply.author) return;
@@ -379,21 +396,23 @@ export default function SinglePost() {
             
             {/* Comments List */}
             <div className="space-y-3">
-              {post.comments && post.comments.length > 0 ? (
-                post.comments.map((comment) => (
-                  <CommentItem
-                    key={comment._id}
-                    comment={comment}
-                    postId={post._id}
-                    onCommentUpdate={handleCommentUpdate}
-                    onReply={handleReplyToComment}
-                  />
-                ))
-              ) : (
-                <div className="bg-gray-50 p-6 rounded-lg text-center">
-                  <p className="text-gray-500 text-sm">No comments yet. Be the first to comment!</p>
-                </div>
-              )}
+            {post.comments && post.comments.length > 0 ? (
+              post.comments.map((comment) => (
+                <CommentItem
+                  key={comment._id}
+                  comment={comment}
+                  postId={post._id}
+                  postAuthorId={post.author?._id} // Add this prop
+                  onCommentUpdate={handleCommentUpdate}
+                  onCommentDelete={handleCommentDelete}
+                  onReply={handleReplyToComment}
+                />
+              ))
+            ) : (
+              <div className="bg-gray-50 p-6 rounded-lg text-center">
+                <p className="text-gray-500 text-sm">No comments yet. Be the first to comment!</p>
+              </div>
+            )}
             </div>
           </div>
         </div>

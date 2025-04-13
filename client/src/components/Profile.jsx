@@ -448,6 +448,23 @@ export default function CustomProfile() {
       }, 0);
     };
 
+    const handleCommentDelete = async (commentId) => {
+      try {
+        setPosts(prevPosts => 
+          prevPosts.map(p => {
+            if (p._id !== post._id) return p;
+            
+            return {
+              ...p,
+              comments: p.comments.filter(c => c._id !== commentId)
+            };
+          })
+        );
+      } catch (error) {
+        console.error("Error handling comment deletion:", error);
+      }
+    };
+
     // Start editing the post
     const handleEditPost = () => {
       if (isGuestMode) {
@@ -671,20 +688,22 @@ export default function CustomProfile() {
             
             {/* Comments List */}
             <div className="space-y-3">
-              {post.comments && post.comments.length > 0 ? (
-                post.comments.map((comment) => (
-                  <CommentItem
-                    key={comment._id}
-                    comment={comment}
-                    postId={post._id}
-                    onCommentUpdate={handleCommentUpdate}
-                    onReply={handleReplyToComment}
-                    isGuestMode={isGuestMode}
-                  />
-                ))
-              ) : (
-                <p className="text-gray-500 text-sm text-center">No comments yet</p>
-              )}
+            {post.comments && post.comments.length > 0 ? (
+              post.comments.map((comment) => (
+                <CommentItem
+                  key={comment._id}
+                  comment={comment}
+                  postId={post._id}
+                  postAuthorId={post.author?._id} // Add this prop
+                  onCommentUpdate={handleCommentUpdate}
+                  onCommentDelete={handleCommentDelete}
+                  onReply={handleReplyToComment}
+                  isGuestMode={isGuestMode}
+                />
+              ))
+            ) : (
+              <p className="text-gray-500 text-sm text-center">No comments yet</p>
+            )}
             </div>
           </div>
         )}
