@@ -187,22 +187,31 @@ export default function SinglePost() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+      <div className="max-w-3xl mx-auto flex justify-center items-center h-64">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-900"></div>
+          <p className="mt-4 text-orange-900">Loading post...</p>
+        </div>
       </div>
     );
   }
 
   if (error || !post) {
     return (
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-red-50 p-4 rounded-lg shadow mb-4 text-red-700">
-          {error || "Post not found"}
+      <div className="max-w-3xl mx-auto py-8">
+        <div className="bg-red-50 p-6 rounded-xl shadow-md mb-6 text-red-700 border border-red-200">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <p className="text-center font-medium">{error || "Post not found"}</p>
         </div>
         <button 
           onClick={() => navigate(-1)} 
-          className="text-indigo-600 hover:underline"
+          className="flex items-center text-orange-900 hover:text-yellow-600 font-medium transition mx-auto"
         >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+          </svg>
           Go back
         </button>
       </div>
@@ -212,30 +221,30 @@ export default function SinglePost() {
   const isLiked = Array.isArray(post.likes) && user && post.likes.some(id => id === user._id);
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-3xl mx-auto py-6">
       <button 
         onClick={() => navigate(-1)} 
-        className="mb-4 inline-flex items-center text-indigo-600 hover:underline"
+        className="mb-6 inline-flex items-center text-orange-900 hover:text-yellow-600 transition font-medium"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 17l-5-5m0 0l5-5m-5 5h12" />
         </svg>
         Back
       </button>
 
-      <div className="bg-white rounded-lg shadow p-4">
+      <div className="bg-white rounded-xl shadow-md border border-amber-50 overflow-hidden">
         {/* Post Header */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between p-5 border-b border-amber-50">
           <div className="flex items-center">
             <img 
               src={post.author?.profilePicture || "/default-avatar.jpg"} 
               alt={post.author?.username || "User"} 
-              className="h-10 w-10 rounded-full object-cover mr-3"
+              className="h-12 w-12 rounded-full object-cover border-2 border-amber-100 shadow-sm mr-3"
             />
             <div>
               <Link 
                 to={`/profile/${post.author?._id}`} 
-                className="font-medium text-gray-900 hover:underline"
+                className="font-semibold text-gray-900 hover:text-orange-900 transition"
               >
                 {post.author?.username || "Unknown User"}
               </Link>
@@ -252,109 +261,140 @@ export default function SinglePost() {
         </div>
         
         {/* Post Content */}
-        {isEditing ? (
-          <div className="mb-4">
-            <textarea
-              ref={editTextareaRef}
-              value={editedContent}
-              onChange={(e) => setEditedContent(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-600"
-              rows="4"
-              placeholder="What's on your mind?"
-            ></textarea>
-            <div className="flex justify-end space-x-2 mt-2">
-              <button
-                onClick={handleCancelEdit}
-                className="px-3 py-1 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveEdit}
-                className="px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-              >
-                Save
-              </button>
+        <div className="p-5">
+          {isEditing ? (
+            <div className="mb-4">
+              <textarea
+                ref={editTextareaRef}
+                value={editedContent}
+                onChange={(e) => setEditedContent(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
+                rows="4"
+                placeholder="What's on your mind?"
+              ></textarea>
+              <div className="flex justify-end space-x-2 mt-3">
+                <button
+                  onClick={handleCancelEdit}
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveEdit}
+                  className="px-4 py-2 bg-orange-900 text-white rounded-lg hover:bg-yellow-600 transition"
+                >
+                  Save
+                </button>
+              </div>
             </div>
-          </div>
-        ) : (
-          post.content && (
-            <p className="text-gray-800 mb-4">{post.content}</p>
-          )
-        )}
-        
-        {/* Post Image (if any) */}
-        {post.image && (
-          <div className="mb-4">
-            <img src={post.image} alt="Post content" className="w-full rounded-lg" />
-          </div>
-        )}
-        
-        {/* Post Stats */}
-        <div className="flex items-center text-sm text-gray-500 mb-2">
-          <span>{post.likes?.length || 0} likes</span>
-          <span className="mx-2">•</span>
-          <span>{post.comments?.length || 0} comments</span>
-        </div>
-        
-        {/* Post Actions */}
-        <div className="flex border-t border-b py-2 mb-4">
-          <button 
-            onClick={handleLike}
-            className={`flex-1 flex items-center justify-center py-1 ${isLiked ? 'text-blue-600' : 'text-gray-500'} hover:bg-gray-50 rounded`}
-          >
-            <span className="mr-1">👍</span> 
-            <span className={`${isLiked ? 'font-bold' : ''}`}>Like</span>
-          </button>
-          <button 
-            className="flex-1 flex items-center justify-center py-1 text-gray-500 hover:bg-gray-50 rounded"
-            onClick={() => commentInputRef.current?.focus()}
-          >
-            <span className="mr-1">💬</span> Comment
-          </button>
-        </div>
-        
-        {/* Comments Section */}
-        <div>
-          <h3 className="font-medium text-gray-900 mb-2">Comments</h3>
+          ) : (
+            post.content && (
+              <p className="text-gray-800 mb-5 leading-relaxed text-lg">{post.content}</p>
+            )
+          )}
           
-          {/* Add Comment Form */}
-          <form 
-            onSubmit={handleCommentSubmit} 
-            className="flex mb-4"
-          >
-            <input
-              id="comment-input"
-              ref={commentInputRef}
-              type="text"
-              placeholder="Write a comment..."
-              className="flex-1 p-2 border border-gray-300 rounded-l-md"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-            />
-            <button
-              type="submit"
-              className="px-3 bg-indigo-600 text-white rounded-r-md"
+          {/* Post Image (if any) */}
+          {post.image && (
+            <div className="mb-5 rounded-lg overflow-hidden">
+              <img 
+                src={post.image} 
+                alt="Post content" 
+                className="w-full h-auto rounded-lg shadow-sm"
+                style={{ maxHeight: '600px', objectFit: 'contain' }}
+              />
+            </div>
+          )}
+          
+          {/* Post Stats */}
+          <div className="flex items-center text-sm text-gray-500 mb-2">
+            <span className="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-orange-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+              {post.likes?.length || 0} likes
+            </span>
+            <span className="mx-2">•</span>
+            <span className="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-orange-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+              </svg>
+              {post.comments?.length || 0} comments
+            </span>
+          </div>
+          
+          {/* Post Actions */}
+          <div className="flex border-t border-b border-amber-50 py-2 mb-5">
+            <button 
+              onClick={handleLike}
+              className={`flex-1 flex items-center justify-center py-2 rounded-lg mr-1 transition ${
+                isLiked ? 'text-orange-900 bg-amber-50 font-medium' : 'text-gray-600 hover:bg-gray-50'
+              }`}
             >
-              Post
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill={isLiked ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={isLiked ? 0 : 2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+              </svg>
+              <span>{isLiked ? 'Liked' : 'Like'}</span>
             </button>
-          </form>
+            <button 
+              className="flex-1 flex items-center justify-center py-2 text-gray-600 hover:bg-gray-50 rounded-lg ml-1 transition"
+              onClick={() => commentInputRef.current?.focus()}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+              Comment
+            </button>
+          </div>
           
-          {/* Comments List */}
-          <div className="space-y-3">
-            {post.comments && post.comments.length > 0 ? (
-              post.comments.map((comment) => (
-                <CommentItem
-                  key={comment._id}
-                  comment={comment}
-                  postId={post._id}
-                  onCommentUpdate={handleCommentUpdate}
-                  onReply={handleReplyToComment}
-                />
-              ))
-            ) : (
-              <p className="text-gray-500 text-sm text-center py-4">No comments yet. Be the first to comment!</p>
-            )}
+          {/* Comments Section */}
+          <div>
+            <h3 className="font-semibold text-gray-800 mb-4 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-orange-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+              </svg>
+              Comments
+            </h3>
+            
+            {/* Add Comment Form */}
+            <form 
+              onSubmit={handleCommentSubmit} 
+              className="flex mb-5"
+            >
+              <input
+                id="comment-input"
+                ref={commentInputRef}
+                type="text"
+                placeholder="Write a comment..."
+                className="flex-1 p-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+              />
+              <button
+                type="submit"
+                className="px-4 bg-orange-900 text-white rounded-r-lg hover:bg-yellow-600 transition"
+              >
+                Post
+              </button>
+            </form>
+            
+            {/* Comments List */}
+            <div className="space-y-3">
+              {post.comments && post.comments.length > 0 ? (
+                post.comments.map((comment) => (
+                  <CommentItem
+                    key={comment._id}
+                    comment={comment}
+                    postId={post._id}
+                    onCommentUpdate={handleCommentUpdate}
+                    onReply={handleReplyToComment}
+                  />
+                ))
+              ) : (
+                <div className="bg-gray-50 p-6 rounded-lg text-center">
+                  <p className="text-gray-500 text-sm">No comments yet. Be the first to comment!</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

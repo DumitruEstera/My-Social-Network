@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import CommentItem from "./CommentItem";
 import PostMenu from "./PostMenu";
-import GuestPrompt from "./GuestPrompt"; // Import the new component
+import GuestPrompt from "./GuestPrompt";
 
 export default function Post({ post: initialPost, onPostDeleted }) {
   const [post, setPost] = useState(initialPost);
@@ -214,17 +214,20 @@ export default function Post({ post: initialPost, onPostDeleted }) {
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow">
+    <div className="bg-white rounded-xl shadow-md p-5 mb-5 border border-amber-50 transition duration-300 hover:shadow-lg">
       {/* Post Header */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
           <img 
             src={post.author?.profilePicture || "/default-avatar.jpg"} 
             alt={post.author?.username || "User"} 
-            className="h-10 w-10 rounded-full object-cover mr-3"
+            className="h-12 w-12 rounded-full object-cover border-2 border-amber-100 shadow-sm mr-3"
           />
           <div>
-            <Link to={`/profile/${post.author?._id}`} className="font-medium text-gray-900 hover:underline">
+            <Link 
+              to={`/profile/${post.author?._id}`} 
+              className="font-semibold text-gray-900 hover:text-orange-900 transition"
+            >
               {post.author?.username || "Unknown User"}
             </Link>
             <p className="text-xs text-gray-500">{formatDate(post.createdAt || new Date())}</p>
@@ -242,67 +245,86 @@ export default function Post({ post: initialPost, onPostDeleted }) {
       </div>
       
       {/* Post Content */}
-      <div className="mb-3">
+      <div className="mb-4">
         {isEditing ? (
           <div>
             <textarea
               ref={editTextareaRef}
               value={editedContent}
               onChange={(e) => setEditedContent(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-600"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
               rows="3"
               placeholder="What's on your mind?"
             ></textarea>
             <div className="flex justify-end space-x-2 mt-2">
               <button
                 onClick={handleCancelEdit}
-                className="px-3 py-1 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveEdit}
-                className="px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                className="px-4 py-2 bg-orange-900 text-white rounded-lg hover:bg-yellow-600 transition"
               >
                 Save
               </button>
             </div>
           </div>
         ) : (
-          <p className="text-gray-800">{post.content}</p>
+          post.content && (
+            <p className="text-gray-800 leading-relaxed">{post.content}</p>
+          )
         )}
       </div>
       
       {/* Post Image (if any) */}
       {post.image && (
-        <div className="mb-3">
-          <img src={post.image} alt="Post" className="w-full rounded-lg" />
+        <div className="mb-4 rounded-lg overflow-hidden">
+          <img 
+            src={post.image} 
+            alt="Post" 
+            className="w-full h-auto rounded-lg shadow-sm"
+            style={{ maxHeight: '500px', objectFit: 'contain' }}
+          />
         </div>
       )}
       
       {/* Post Stats */}
       <div className="flex items-center text-sm text-gray-500 mb-2">
-        <span>{post.likes?.length || 0} likes</span>
+        <span className="flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-orange-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+          {post.likes?.length || 0} likes
+        </span>
         <span className="mx-2">•</span>
-        <span>{post.comments?.length || 0} comments</span>
+        <span className="flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-orange-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+          </svg>
+          {post.comments?.length || 0} comments
+        </span>
       </div>
       
       {/* Post Actions */}
-      <div className="flex border-t border-b py-2 mb-3">
+      <div className="flex border-t border-b border-amber-50 py-2 mb-3">
         <button 
           onClick={handleLike}
-          className={`flex-1 flex items-center justify-center py-1 ${isLiked ? 'text-blue-600' : 'text-gray-500'} hover:bg-gray-50 rounded`}
-          >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+          className={`flex-1 flex items-center justify-center py-2 rounded-lg mr-1 transition ${
+            isLiked ? 'text-orange-900 bg-amber-50 font-medium' : 'text-gray-600 hover:bg-gray-50'
+          }`}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill={isLiked ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={isLiked ? 0 : 2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
           </svg>
-          <span className={`${isLiked ? 'font-bold' : ''}`}>Like</span>
+          <span>{isLiked ? 'Liked' : 'Like'}</span>
         </button>
         <button 
           onClick={handleCommentClick}
-          className="flex-1 flex items-center justify-center py-1 text-gray-500 hover:bg-gray-50 rounded"
+          className="flex-1 flex items-center justify-center py-2 text-gray-600 hover:bg-gray-50 rounded-lg ml-1 transition"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
           </svg>
           Comment
@@ -314,18 +336,18 @@ export default function Post({ post: initialPost, onPostDeleted }) {
         <div>
           {/* Comment Form - Only show for logged in users */}
           {!isGuestMode && (
-            <form onSubmit={handleCommentSubmit} className="flex mb-3">
+            <form onSubmit={handleCommentSubmit} className="flex mb-4">
               <input
                 type="text"
                 placeholder="Write a comment..."
-                className="flex-1 p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                className="flex-1 p-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 ref={commentInputRef}
               />
               <button
                 type="submit"
-                className="px-3 bg-indigo-600 text-white rounded-r-md hover:bg-indigo-700 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                className="px-4 bg-orange-900 text-white rounded-r-lg hover:bg-yellow-600 transition"
               >
                 Post
               </button>
@@ -334,14 +356,14 @@ export default function Post({ post: initialPost, onPostDeleted }) {
           
           {/* Guest Comment Message - Only show for guest users */}
           {isGuestMode && (
-            <div className="bg-gray-50 text-gray-700 p-3 mb-3 rounded-md border border-gray-200 flex items-center justify-between">
-              <span>Sign in to add a comment</span>
+            <div className="bg-amber-50 text-gray-700 p-4 mb-4 rounded-lg border border-amber-100 flex items-center justify-between">
+              <span className="text-gray-700">Sign in to add a comment</span>
               <button
                 onClick={() => {
                   setPromptAction("comment on posts");
                   setShowGuestPrompt(true);
                 }}
-                className="text-indigo-600 font-medium hover:text-indigo-800"
+                className="px-4 py-2 bg-orange-900 text-white rounded-lg hover:bg-yellow-600 transition text-sm"
               >
                 Create Account
               </button>
@@ -349,7 +371,7 @@ export default function Post({ post: initialPost, onPostDeleted }) {
           )}
           
           {/* Comments List */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             {post.comments && post.comments.length > 0 ? (
               post.comments.map((comment) => (
                 <CommentItem
@@ -362,7 +384,9 @@ export default function Post({ post: initialPost, onPostDeleted }) {
                 />
               ))
             ) : (
-              <p className="text-gray-500 text-sm text-center">No comments yet. Be the first to comment!</p>
+              <div className="text-center py-4">
+                <p className="text-gray-500 text-sm">No comments yet. Be the first to comment!</p>
+              </div>
             )}
           </div>
         </div>

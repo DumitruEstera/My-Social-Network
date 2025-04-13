@@ -362,19 +362,19 @@ export default function CustomProfile() {
     };
 
     return (
-      <div className="bg-white rounded-lg shadow p-4 mb-4">
+      <div className="bg-white rounded-xl shadow-md p-5 mb-5 border border-amber-50 transition duration-300 hover:shadow-lg">
         {/* Post Header */}
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
             <img 
               src={post.author?.profilePicture || "/default-avatar.jpg"} 
               alt={post.author?.username || "User"} 
-              className="h-10 w-10 rounded-full object-cover mr-3"
+              className="h-12 w-12 rounded-full object-cover border-2 border-amber-100 shadow-sm mr-3"
             />
             <div>
               <Link 
                 to={`/profile/${post.author?._id}`} 
-                className="font-medium text-gray-900 hover:underline"
+                className="font-semibold text-gray-900 hover:text-orange-900 transition"
               >
                 {post.author?.username || "Unknown User"}
               </Link>
@@ -392,25 +392,25 @@ export default function CustomProfile() {
         
         {/* Post Content */}
         {isEditing ? (
-          <div className="mb-3">
+          <div className="mb-4">
             <textarea
               ref={editTextareaRef}
               value={editedContent}
               onChange={(e) => setEditedContent(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-600"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
               rows="3"
               placeholder="What's on your mind?"
             ></textarea>
             <div className="flex justify-end space-x-2 mt-2">
               <button
                 onClick={handleCancelEdit}
-                className="px-3 py-1 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveEdit}
-                className="px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                className="px-4 py-2 bg-orange-900 text-white rounded-lg hover:bg-yellow-600 transition"
               >
                 Save
               </button>
@@ -418,31 +418,43 @@ export default function CustomProfile() {
           </div>
         ) : (
           post.content && (
-            <p className="text-gray-800 mb-3">{post.content}</p>
+            <p className="text-gray-800 mb-4 leading-relaxed">{post.content}</p>
           )
         )}
         
         {/* Post Image (if any) */}
         {post.image && (
-          <div className="mb-3">
-            <img src={post.image} alt="Post content" className="w-full rounded-lg" />
+          <div className="mb-4 rounded-lg overflow-hidden">
+            <img 
+              src={post.image} 
+              alt="Post content" 
+              className="w-full h-auto rounded-lg shadow-sm object-cover"
+              style={{ maxHeight: '500px', objectFit: 'contain' }}
+            />
           </div>
         )}
         
         {/* Post Actions */}
-        <div className="flex border-t border-b py-2 mb-3">
+        <div className="flex border-t border-b border-amber-50 py-2 mb-3">
           <button 
             onClick={() => handleLike(post._id)}
-            className={`flex-1 flex items-center justify-center py-1 ${isLiked ? 'text-blue-600' : 'text-gray-500'} hover:bg-gray-50 rounded`}
+            className={`flex-1 flex items-center justify-center py-2 rounded-lg mr-1 transition ${
+              isLiked ? 'text-orange-900 bg-amber-50 font-medium' : 'text-gray-600 hover:bg-gray-50'
+            }`}
           >
-            <span className="mr-1">👍</span> 
-            <span className={`${isLiked ? 'font-bold' : ''}`}>Like</span> ({post.likes?.length || 0})
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill={isLiked ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={isLiked ? 0 : 2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+            </svg>
+            <span>Like</span> ({post.likes?.length || 0})
           </button>
           <button 
             onClick={() => setShowComments(!showComments)}
-            className="flex-1 flex items-center justify-center py-1 text-gray-500 hover:bg-gray-50 rounded"
+            className="flex-1 flex items-center justify-center py-2 text-gray-600 hover:bg-gray-50 rounded-lg ml-1 transition"
           >
-            <span className="mr-1">💬</span> Comment ({post.comments?.length || 0})
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+            <span>Comment</span> ({post.comments?.length || 0})
           </button>
         </div>
         
@@ -461,21 +473,21 @@ export default function CustomProfile() {
               <input
                 type="text"
                 placeholder="Write a comment..."
-                className="flex-1 p-2 border border-gray-300 rounded-l-md"
+                className="flex-1 p-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 ref={commentInputRef}
               />
               <button
                 type="submit"
-                className="px-3 bg-indigo-600 text-white rounded-r-md"
+                className="px-4 bg-orange-900 text-white rounded-r-lg hover:bg-yellow-600 transition"
               >
                 Post
               </button>
             </form>
             
             {/* Comments List */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               {post.comments && post.comments.length > 0 ? (
                 post.comments.map((comment) => (
                   <CommentItem
@@ -499,15 +511,21 @@ export default function CustomProfile() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-900"></div>
+          <p className="mt-4 text-orange-900">Loading profile...</p>
+        </div>
       </div>
     );
   }
 
   if (!profileData) {
     return (
-      <div className="text-center py-10">
-        <h2 className="text-xl font-semibold">User not found</h2>
+      <div className="text-center py-10 bg-white rounded-xl shadow-md border border-amber-50">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-yellow-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <h2 className="text-xl font-semibold text-orange-900">User not found</h2>
       </div>
     );
   }
@@ -526,16 +544,18 @@ export default function CustomProfile() {
   const photoCount = posts.filter(post => post.image).length;
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-3xl mx-auto">
       {/* Profile Header */}
-      <div className="bg-white p-6 rounded-lg shadow mb-6">
-        <div className="flex items-center gap-6">
+      <div className="bg-white p-8 rounded-xl shadow-md mb-6 border border-amber-50">
+        <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
           <div className="relative">
-            <img 
-              src={profileData.profilePicture || "/default-avatar.jpg"} 
-              alt={profileData.username} 
-              className="h-24 w-24 rounded-full object-cover"
-            />
+            <div className="h-36 w-36 rounded-full overflow-hidden border-4 border-amber-100 shadow-md">
+              <img 
+                src={profileData.profilePicture || "/default-avatar.jpg"} 
+                alt={profileData.username} 
+                className="h-full w-full object-cover"
+              />
+            </div>
             
             {isOwnProfile && (
               <div className="absolute bottom-0 right-0">
@@ -549,7 +569,7 @@ export default function CustomProfile() {
                 <button 
                   onClick={triggerFileInput}
                   disabled={uploading}
-                  className="bg-indigo-600 text-white p-1 rounded-full hover:bg-indigo-700 shadow"
+                  className="bg-orange-900 text-white p-2 rounded-full hover:bg-yellow-600 shadow transition"
                   title="Change profile picture"
                 >
                   {uploading ? (
@@ -565,75 +585,74 @@ export default function CustomProfile() {
             )}
           </div>
           
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold">{profileData.username}</h1>
-            <p className="text-gray-500">{profileData.email}</p>
+          <div className="flex-1 text-center md:text-left">
+            <h1 className="text-3xl font-bold text-gray-900">{profileData.username}</h1>
+            <p className="text-gray-500 mb-4">{profileData.email}</p>
             
-            <div className="flex gap-4 mt-2">
-              <div>
-                <span className="font-semibold">{posts.length}</span> posts
+            <div className="flex flex-wrap justify-center md:justify-start gap-6 mb-4">
+              <div className="text-center">
+                <span className="block text-2xl font-bold text-orange-900">{posts.length}</span>
+                <span className="text-gray-600">posts</span>
               </div>
-              <div>
-                <button 
-                  onClick={() => openModal('followers')}
-                  className="text-left hover:underline focus:outline-none"
-                >
-                  <span className="font-semibold">{profileData.followers?.length || 0}</span> followers
-                </button>
-              </div>
-              <div>
-                <button 
-                  onClick={() => openModal('following')}
-                  className="text-left hover:underline focus:outline-none"
-                >
-                  <span className="font-semibold">{profileData.following?.length || 0}</span> following
-                </button>
-              </div>
+              <button 
+                onClick={() => openModal('followers')}
+                className="text-center hover:text-orange-900 focus:outline-none transition"
+              >
+                <span className="block text-2xl font-bold text-orange-900">{profileData.followers?.length || 0}</span>
+                <span className="text-gray-600">followers</span>
+              </button>
+              <button 
+                onClick={() => openModal('following')}
+                className="text-center hover:text-orange-900 focus:outline-none transition"
+              >
+                <span className="block text-2xl font-bold text-orange-900">{profileData.following?.length || 0}</span>
+                <span className="text-gray-600">following</span>
+              </button>
             </div>
             
             {uploadError && (
-              <p className="text-red-500 text-sm mt-1">{uploadError}</p>
+              <p className="text-red-500 text-sm mt-1 mb-4">{uploadError}</p>
+            )}
+            
+            {!isOwnProfile && (
+              <button
+                onClick={handleFollowToggle}
+                className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+                  isFollowing 
+                    ? 'bg-gray-100 hover:bg-gray-200 text-gray-800' 
+                    : 'bg-orange-900 hover:bg-yellow-600 text-white'
+                }`}
+              >
+                {isFollowing ? 'Unfollow' : 'Follow'}
+              </button>
             )}
           </div>
-          
-          {!isOwnProfile && (
-            <button
-              onClick={handleFollowToggle}
-              className={`px-4 py-2 rounded-md ${
-                isFollowing 
-                  ? 'bg-gray-200 hover:bg-gray-300 text-gray-800' 
-                  : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-              }`}
-            >
-              {isFollowing ? 'Unfollow' : 'Follow'}
-            </button>
-          )}
         </div>
         
         {/* Bio Section */}
-        <div className="mt-4">
+        <div className="mt-6 pt-6 border-t border-amber-50">
           {isEditing ? (
             <div>
               <textarea
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
                 placeholder="Write something about yourself..."
                 rows="3"
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
               ></textarea>
-              <div className="flex justify-end mt-2 gap-2">
+              <div className="flex justify-end mt-3 gap-2">
                 <button
                   onClick={() => {
                     setIsEditing(false);
                     setBio(profileData.bio || "");
                   }}
-                  className="px-3 py-1 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleProfileUpdate}
-                  className="px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                  className="px-4 py-2 bg-orange-900 text-white rounded-lg hover:bg-yellow-600 transition"
                 >
                   Save
                 </button>
@@ -641,11 +660,12 @@ export default function CustomProfile() {
             </div>
           ) : (
             <div>
-              <p className="text-gray-800">{profileData.bio || "No bio yet."}</p>
+              <h3 className="font-medium text-gray-700 mb-2">Bio</h3>
+              <p className="text-gray-800 leading-relaxed">{profileData.bio || "No bio yet."}</p>
               {isOwnProfile && (
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="text-indigo-600 text-sm mt-2 hover:underline"
+                  className="mt-3 text-orange-900 hover:text-yellow-600 text-sm font-medium transition"
                 >
                   Edit bio
                 </button>
@@ -668,25 +688,25 @@ export default function CustomProfile() {
       <div className="flex border-b mb-6">
         <button
           onClick={() => setActiveTab("posts")}
-          className={`flex-1 py-3 font-medium text-center ${
+          className={`flex-1 py-3 px-6 font-medium text-center transition ${
             activeTab === "posts"
-              ? "text-indigo-600 border-b-2 border-indigo-600"
-              : "text-gray-600 hover:text-indigo-600"
+              ? "text-orange-900 border-b-2 border-orange-900"
+              : "text-gray-600 hover:text-orange-900"
           }`}
         >
           Posts
         </button>
         <button
           onClick={() => setActiveTab("photos")}
-          className={`flex-1 py-3 font-medium text-center ${
+          className={`flex-1 py-3 px-6 font-medium text-center transition ${
             activeTab === "photos"
-              ? "text-indigo-600 border-b-2 border-indigo-600"
-              : "text-gray-600 hover:text-indigo-600"
+              ? "text-orange-900 border-b-2 border-orange-900"
+              : "text-gray-600 hover:text-orange-900"
           }`}
         >
           Photos
           {photoCount > 0 && (
-            <span className="ml-2 px-2 py-0.5 text-xs bg-indigo-100 text-indigo-800 rounded-full">
+            <span className="ml-2 px-2.5 py-0.5 text-xs bg-orange-100 text-orange-800 rounded-full">
               {photoCount}
             </span>
           )}
@@ -695,20 +715,26 @@ export default function CustomProfile() {
       
       {/* Content based on active tab */}
       {activeTab === "posts" ? (
-        <div className="space-y-4">
+        <div className="space-y-5">
           {posts.length > 0 ? (
             posts.map((post) => (
               <PostItem key={post._id} post={post} />
             ))
           ) : (
-            <div className="bg-white p-4 rounded-lg shadow text-center">
-              <p className="text-gray-500">No posts yet.</p>
+            <div className="bg-white p-8 rounded-xl shadow-md text-center border border-amber-50">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-yellow-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+              </svg>
+              <p className="text-gray-600 mb-2">No posts yet.</p>
+              {isOwnProfile && (
+                <p className="text-orange-900 font-medium">Share your first post!</p>
+              )}
             </div>
           )}
         </div>
       ) : (
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Photos</h2>
+        <div className="bg-white rounded-xl shadow-md p-6 border border-amber-50">
+          <h2 className="text-xl font-semibold text-orange-900 mb-6">Photos</h2>
           <PhotoGallery posts={posts} />
         </div>
       )}

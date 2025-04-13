@@ -30,7 +30,7 @@ export default function Login() {
 
     const success = await login(formData.email, formData.password);
     if (success) {
-      navigate("/feed", { replace: true });  // Navigate to feed explicitly
+      navigate("/feed", { replace: true });
     }
   };
 
@@ -40,23 +40,26 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-full flex-col justify-center px-6 py-12">
-      <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <img src="/BuzzlyLogo3.png" alt="Buzzly Logo" className="h-35 w-35" />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-amber-50 to-white px-6 py-12">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <div className="flex justify-center">
+            <img src="/BuzzlyLogo3.png" alt="Buzzly Logo" className="h-32 w-32" />
+          </div>
+          <h1 className="mt-6 text-3xl font-bold text-orange-900">Welcome to Buzzly</h1>
+          <p className="mt-2 text-yellow-600 italic">Stay updated and buzzing with trends.</p>
         </div>
-        <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-slate-900">
-          Sign in to your account
-        </h2>
-      </div>
 
-      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium leading-6 text-slate-900">
-              Email address
-            </label>
-            <div className="mt-2">
+        <div className="bg-white rounded-xl shadow-xl p-8 border border-amber-100">
+          <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center">
+            Sign in to your account
+          </h2>
+
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                Email address
+              </label>
               <input
                 id="email"
                 name="email"
@@ -65,18 +68,17 @@ export default function Login() {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="block w-full rounded-md border-0 py-1.5 px-2 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-200"
+                placeholder="youremail@example.com"
               />
             </div>
-          </div>
 
-          <div>
-            <div className="flex items-center justify-between">
-              <label htmlFor="password" className="block text-sm font-medium leading-6 text-slate-900">
-                Password
-              </label>
-            </div>
-            <div className="mt-2">
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  Password
+                </label>
+              </div>
               <input
                 id="password"
                 name="password"
@@ -85,33 +87,49 @@ export default function Login() {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="block w-full rounded-md border-0 py-1.5 px-2 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-200"
+                placeholder="••••••••"
               />
             </div>
-          </div>
 
-          {(formError || error) && (
-            <div className="text-red-600 text-sm">
-              {formError || error}
+            {(formError || error) && (
+              <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg">
+                {formError || error}
+              </div>
+            )}
+
+            <div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full flex justify-center items-center py-3 px-4 rounded-lg bg-orange-900 hover:bg-yellow-600 text-white font-medium shadow-sm transition duration-200 disabled:opacity-50"
+              >
+                {loading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Signing in...
+                  </>
+                ) : (
+                  "Sign in"
+                )}
+              </button>
             </div>
-          )}
+          </form>
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex w-full justify-center rounded-md bg-orange-900 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-yellow-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50"
-            >
-              {loading ? "Signing in..." : "Sign in"}
-            </button>
+          {/* Divider */}
+          <div className="my-6 flex items-center">
+            <div className="flex-grow border-t border-gray-200"></div>
+            <span className="flex-shrink mx-4 text-gray-400 text-sm">or</span>
+            <div className="flex-grow border-t border-gray-200"></div>
           </div>
-        </form>
 
-        {/* Guest Mode Button */}
-        <div className="mt-4">
+          {/* Guest Mode Button */}
           <button
             onClick={handleGuestMode}
-            className="flex w-full justify-center rounded-md bg-gray-100 px-3 py-1.5 text-sm font-semibold leading-6 text-gray-900 shadow-sm hover:bg-gray-200 border border-gray-300"
+            className="w-full flex justify-center items-center py-3 px-4 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium border border-gray-200 shadow-sm transition duration-200"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -119,13 +137,17 @@ export default function Login() {
             </svg>
             Continue as Guest
           </button>
-        </div>
 
-        <p className="mt-10 text-center text-sm text-slate-500">
-          Not a member?{' '}
-          <Link to="/register" className="font-semibold leading-6 text-orange-900 hover:text-yellow-600">
-            Create an account
-          </Link>
+          <p className="mt-8 text-center text-gray-600">
+            Not a member?{' '}
+            <Link to="/register" className="font-medium text-orange-900 hover:text-yellow-600 transition duration-200">
+              Create an account
+            </Link>
+          </p>
+        </div>
+        
+        <p className="mt-6 text-center text-xs text-gray-500">
+          © 2025 Buzzly. All rights reserved.
         </p>
       </div>
     </div>
