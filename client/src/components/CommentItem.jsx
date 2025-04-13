@@ -105,17 +105,17 @@ export default function CommentItem({ comment: initialComment, postId, onComment
   };
   
   return (
-    <div className="flex p-2 bg-gray-50 rounded mb-2">
+    <div className="flex p-3 bg-amber-50 rounded-lg mb-2 border border-amber-100">
       <img 
         src={initialComment.author?.profilePicture || "/default-avatar.jpg"} 
         alt={initialComment.author?.username || "User"} 
-        className="h-8 w-8 rounded-full object-cover mr-2"
+        className="h-9 w-9 rounded-full object-cover mr-3 border-2 border-amber-100 shadow-sm"
       />
       <div className="flex-1">
         <div className="flex items-baseline gap-2">
           <Link 
             to={`/profile/${initialComment.author?._id}`} 
-            className="font-medium text-gray-900 hover:underline"
+            className="font-medium text-gray-900 hover:text-orange-900 transition"
           >
             {initialComment.author?.username || "Unknown User"}
           </Link>
@@ -123,18 +123,18 @@ export default function CommentItem({ comment: initialComment, postId, onComment
             {formatDate(initialComment.createdAt)}
           </span>
         </div>
-        <p className="text-gray-800 text-sm">
+        <p className="text-gray-800 text-sm leading-relaxed mt-1">
           {formatCommentWithMentions(initialComment.content, handleUsernameClick)}
         </p>
         
         {/* Like button and count */}
-        <div className="flex items-center mt-1">
+        <div className="flex items-center mt-2">
           <button
             onClick={handleLike}
             disabled={isLiking}
             className={`flex items-center text-xs ${
-              isLiked ? 'text-blue-600' : 'text-gray-500'
-            } hover:text-blue-600 disabled:opacity-50`}
+              isLiked ? 'text-orange-900' : 'text-gray-500'
+            } hover:text-orange-900 disabled:opacity-50 transition`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" 
               className="h-4 w-4 mr-1" 
@@ -154,7 +154,7 @@ export default function CommentItem({ comment: initialComment, postId, onComment
           {/* Reply button */}
           <button
             onClick={handleReply}
-            className="flex items-center text-xs text-gray-500 hover:text-blue-600 ml-3"
+            className="flex items-center text-xs text-gray-500 hover:text-orange-900 ml-4 transition"
           >
             <svg xmlns="http://www.w3.org/2000/svg" 
               className="h-4 w-4 mr-1" 

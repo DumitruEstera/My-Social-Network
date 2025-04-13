@@ -20,45 +20,45 @@ export default function GuestPrompt({ isOpen, onClose, action }) {
 
   return (
     <div 
-      className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 transition-opacity duration-300 ${
+      className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-60 transition-opacity duration-300 backdrop-blur-sm ${
         visible ? "opacity-100" : "opacity-0"
       }`}
       onClick={handleClose}
     >
       <div 
-        className={`bg-white rounded-lg shadow-xl max-w-md w-full p-6 transform transition-transform duration-300 ${
+        className={`bg-white rounded-xl shadow-xl max-w-md w-full p-8 border border-amber-100 transform transition-transform duration-300 ${
           visible ? "scale-100" : "scale-95"
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="text-center mb-4">
-          <div className="h-16 w-16 mx-auto mb-4 bg-yellow-100 rounded-full flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="text-center mb-6">
+          <div className="h-20 w-20 mx-auto mb-5 bg-amber-100 rounded-full flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-orange-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h3 className="text-xl font-bold text-gray-900">Create an Account to {action || "Continue"}</h3>
-          <p className="mt-2 text-gray-600">
+          <h3 className="text-2xl font-bold text-gray-900 mb-2">Create an Account to {action || "Continue"}</h3>
+          <p className="mt-2 text-gray-600 leading-relaxed">
             You're currently browsing in guest mode. Sign up to interact with the community, create posts, and more!
           </p>
         </div>
 
-        <div className="flex flex-col gap-3 mt-6">
+        <div className="space-y-3 mt-6">
           <Link 
             to="/register" 
-            className="w-full inline-flex justify-center items-center px-4 py-2 bg-orange-900 text-white font-medium rounded-md hover:bg-yellow-600 focus:outline-none"
+            className="w-full flex justify-center items-center px-4 py-3 bg-orange-900 text-white font-medium rounded-lg hover:bg-yellow-600 shadow-sm transition"
           >
             Create Account
           </Link>
           <Link 
             to="/login" 
-            className="w-full inline-flex justify-center items-center px-4 py-2 bg-gray-200 text-gray-800 font-medium rounded-md hover:bg-gray-300 focus:outline-none"
+            className="w-full flex justify-center items-center px-4 py-3 bg-gray-100 text-gray-800 font-medium rounded-lg hover:bg-gray-200 transition"
           >
             Sign In
           </Link>
           <button
             onClick={handleClose}
-            className="mt-2 text-gray-600 hover:text-gray-800"
+            className="w-full text-center mt-2 py-2 text-gray-600 hover:text-orange-900 font-medium transition"
           >
             Continue Browsing
           </button>

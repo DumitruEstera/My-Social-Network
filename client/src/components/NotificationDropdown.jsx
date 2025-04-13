@@ -65,16 +65,16 @@ export default function NotificationDropdown() {
     setIsOpen(false);
   };
 
-// Get notification link based on type
-const getNotificationLink = (notification) => {
-  if (notification.type === 'follow') {
-    return `/profile/${notification.sender?._id}`;
-  }
-  if (notification.type === 'like' || notification.type === 'comment') {
-    return `/post/${notification.postId}`;
-  }
-  return '/';
-};
+  // Get notification link based on type
+  const getNotificationLink = (notification) => {
+    if (notification.type === 'follow') {
+      return `/profile/${notification.sender?._id}`;
+    }
+    if (notification.type === 'like' || notification.type === 'comment') {
+      return `/post/${notification.postId}`;
+    }
+    return '/';
+  };
 
   
   return (
@@ -82,7 +82,7 @@ const getNotificationLink = (notification) => {
       {/* Notification Bell Icon with Badge */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-700 hover:text-indigo-600 focus:outline-none"
+        className="relative p-2 text-gray-700 hover:text-orange-900 focus:outline-none transition"
         aria-label="Notifications"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -91,7 +91,7 @@ const getNotificationLink = (notification) => {
         
         {/* Notification Badge */}
         {unreadCount > 0 && (
-          <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
+          <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-orange-900 rounded-full">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -99,14 +99,14 @@ const getNotificationLink = (notification) => {
 
       {/* Notification Dropdown */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg overflow-hidden z-20">
+        <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl overflow-hidden z-20 border border-amber-100">
           <div className="py-2">
-            <div className="flex justify-between items-center px-4 py-2 border-b">
-              <h3 className="text-lg font-semibold">Notifications</h3>
+            <div className="flex justify-between items-center px-4 py-3 border-b border-amber-50">
+              <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
               {unreadCount > 0 && (
                 <button
                   onClick={markAllAsRead}
-                  className="text-xs text-indigo-600 hover:text-indigo-800"
+                  className="text-xs text-orange-900 hover:text-yellow-600 font-medium transition"
                 >
                   Mark all as read
                 </button>
@@ -115,15 +115,18 @@ const getNotificationLink = (notification) => {
 
             <div className="max-h-96 overflow-y-auto">
               {notifications.length === 0 ? (
-                <div className="py-6 text-center text-gray-500">
-                  No notifications yet
+                <div className="py-8 text-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 mx-auto text-amber-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="text-gray-500">No notifications yet</p>
                 </div>
               ) : (
                 <div>
                   {notifications.map((notification) => (
                     <div
                       key={notification._id}
-                      className={`px-4 py-3 hover:bg-gray-50 ${!notification.read ? 'bg-blue-50' : ''}`}
+                      className={`relative px-4 py-3 hover:bg-amber-50 transition ${!notification.read ? 'bg-amber-50 border-l-4 border-orange-900' : ''}`}
                     >
                       <Link
                         to={getNotificationLink(notification)}
@@ -134,34 +137,33 @@ const getNotificationLink = (notification) => {
                         <img
                           src={notification.sender?.profilePicture || "/default-avatar.jpg"}
                           alt={notification.sender?.username || "User"}
-                          className="h-10 w-10 rounded-full object-cover mr-3"
+                          className="h-10 w-10 rounded-full object-cover mr-3 border-2 border-amber-100 shadow-sm"
                         />
                         
                         {/* Notification Content */}
                         <div className="flex-1">
-                          <p className="text-sm text-gray-800">
+                          <p className="text-sm text-gray-800 leading-snug">
                             {notification.content}
                           </p>
                           <p className="text-xs text-gray-500 mt-1">
                             {formatTimeAgo(notification.createdAt)}
                           </p>
                         </div>
-                        
-                        {/* Delete Button */}
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            deleteNotification(notification._id);
-                          }}
-                          className="text-gray-400 hover:text-gray-600"
-                          aria-label="Delete notification"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
                       </Link>
+                      
+                      {/* Delete Button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteNotification(notification._id);
+                        }}
+                        className="absolute right-4 top-3 text-gray-400 hover:text-red-500 transition"
+                        aria-label="Delete notification"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
                     </div>
                   ))}
                 </div>
