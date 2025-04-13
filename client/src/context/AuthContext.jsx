@@ -12,6 +12,7 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isGuestMode, setIsGuestMode] = useState(localStorage.getItem('guestMode') === 'true');
 
   useEffect(() => {
     // If there's a token in localStorage, try to get user data
@@ -27,6 +28,11 @@ export function AuthProvider({ children }) {
           if (response.ok) {
             const userData = await response.json();
             setUser(userData);
+            // Exit guest mode if user is logged in
+            if (isGuestMode) {
+              setIsGuestMode(false);
+              localStorage.removeItem('guestMode');
+            }
           } else {
             // If token is invalid or user is blocked
             const errorData = await response.json();
@@ -51,6 +57,34 @@ export function AuthProvider({ children }) {
     loadUser();
   }, [token]);
 
+  // Enable guest mode
+  const enableGuestMode = () => {
+    setIsGuestMode(true);
+    localStorage.setItem('guestMode', 'true');
+    
+    // Create dummy guest user data
+    setUser({
+      _id: 'guest',
+      username: 'Guest User',
+      email: 'guest@example.com',
+      profilePicture: '/guest-avatar.jpg',
+      bio: 'Welcome to guest mode! You can browse content but need to create an account to post, like, or comment.',
+      followers: [],
+      following: []
+    });
+    
+    setLoading(false);
+  };
+
+  // Disable guest mode
+  const disableGuestMode = () => {
+    setIsGuestMode(false);
+    localStorage.removeItem('guestMode');
+    if (!token) {
+      setUser(null);
+    }
+  };
+
   // Register a new user
   const register = async (userData) => {
     setLoading(true);
@@ -74,6 +108,10 @@ export function AuthProvider({ children }) {
       // Save token to localStorage
       localStorage.setItem('token', data.token);
       setToken(data.token);
+      
+      // Exit guest mode if active
+      disableGuestMode();
+      
       return true;
     } catch (err) {
       setError(err.message);
@@ -106,6 +144,10 @@ export function AuthProvider({ children }) {
       // Save token to localStorage
       localStorage.setItem('token', data.token);
       setToken(data.token);
+      
+      // Exit guest mode if active
+      disableGuestMode();
+      
       return true;
     } catch (err) {
       setError(err.message);
@@ -152,6 +194,10 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
+    // Also exit guest mode if active
+    if (isGuestMode) {
+      disableGuestMode();
+    }
   };
 
   const value = {
@@ -159,11 +205,15 @@ export function AuthProvider({ children }) {
     token,
     loading,
     error,
+    isGuestMode,
     register,
     login,
     logout,
+    enableGuestMode,
+    disableGuestMode,
     changePassword,
-    isAuthenticated: !!token,
+    isAuthenticated: !!token || isGuestMode,
+    isGenuineUser: !!token && !isGuestMode,
     isAdmin: user?.isAdmin || false
   };
 

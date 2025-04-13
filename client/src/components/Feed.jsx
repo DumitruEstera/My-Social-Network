@@ -3,6 +3,86 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import CommentItem from "./CommentItem";
 import PostMenu from "./PostMenu";
+import GuestPrompt from "./GuestPrompt";
+
+// Sample posts for guest mode
+const SAMPLE_POSTS = [
+  {
+    _id: 'sample-post-1',
+    content: 'Welcome to Buzzly! This is a sample post to give you an idea of how the platform works. Create an account to start sharing your own posts!',
+    createdAt: new Date().toISOString(),
+    likes: Array(15).fill(null),
+    comments: [
+      {
+        _id: 'sample-comment-1',
+        content: 'Great post! Buzzly is amazing for connecting with friends.',
+        author: {
+          _id: 'sample-user-3',
+          username: 'SocialButterfly',
+          profilePicture: 'https://randomuser.me/api/portraits/women/23.jpg'
+        },
+        createdAt: new Date().toISOString(),
+        likes: Array(3).fill(null)
+      }
+    ],
+    author: {
+      _id: 'sample-user-1',
+      username: 'BuzzlyTeam',
+      profilePicture: 'https://randomuser.me/api/portraits/men/41.jpg'
+    }
+  },
+  {
+    _id: 'sample-post-2',
+    content: 'Just finished hiking at the Grand Canyon! The views were absolutely breathtaking. Highly recommend visiting if you haven\'t been!',
+    image: 'https://images.unsplash.com/photo-1527333656061-ca7adf608ae1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+    createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+    likes: Array(42).fill(null),
+    comments: [
+      {
+        _id: 'sample-comment-2',
+        content: 'That view is amazing! I need to plan a trip there.',
+        author: {
+          _id: 'sample-user-4',
+          username: 'TravelEnthusiast',
+          profilePicture: 'https://randomuser.me/api/portraits/women/45.jpg'
+        },
+        createdAt: new Date(Date.now() - 43200000).toISOString(), // 12 hours ago
+        likes: Array(7).fill(null)
+      }
+    ],
+    author: {
+      _id: 'sample-user-2',
+      username: 'AdventureSeeker',
+      profilePicture: 'https://randomuser.me/api/portraits/men/32.jpg'
+    }
+  },
+  {
+    _id: 'sample-post-3',
+    content: 'Just baked these chocolate chip cookies from my grandmother\'s secret recipe. They turned out perfect!',
+    image: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
+    createdAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+    likes: Array(29).fill(null),
+    comments: [
+      {
+        _id: 'sample-comment-3',
+        content: 'They look delicious! Would you mind sharing the recipe?',
+        author: {
+          _id: 'sample-user-5',
+          username: 'FoodLover',
+          profilePicture: 'https://randomuser.me/api/portraits/women/65.jpg'
+        },
+        createdAt: new Date(Date.now() - 129600000).toISOString(), // 1.5 days ago
+        likes: Array(4).fill(null)
+      }
+    ],
+    author: {
+      _id: 'sample-user-6',
+      username: 'BakingQueen',
+      profilePicture: 'https://randomuser.me/api/portraits/women/17.jpg'
+    }
+  }
+];
+
 
 const CustomFeed = () => {
   const [posts, setPosts] = useState([]);
@@ -11,12 +91,20 @@ const CustomFeed = () => {
   const [postImage, setPostImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [showGuestPrompt, setShowGuestPrompt] = useState(false);
+  const [promptAction, setPromptAction] = useState("");
   const fileInputRef = useRef(null);
-  const { token, user } = useAuth();
+  const { token, user, isGuestMode } = useAuth();
 
   useEffect(() => {
-    fetchPosts();
-  }, [token]);
+    if (isGuestMode) {
+      // For guest mode, use sample posts
+      setPosts(SAMPLE_POSTS);
+      setLoading(false);
+    } else {
+      fetchPosts();
+    }
+  }, [token, isGuestMode]); // Update dependencies
 
   const fetchPosts = async () => {
     try {
@@ -206,6 +294,10 @@ const CustomFeed = () => {
     const isLiked = Array.isArray(post.likes) && user && post.likes.some(id => id === user._id);
     const commentInputRef = useRef(null);
     const editTextareaRef = useRef(null);
+
+    posts.map((post) => (
+      <PostItem key={post._id} post={post} isGuestMode={isGuestMode} />
+    ))
     
     // Function to update a comment in the posts state
     const handleCommentUpdate = (updatedComment) => {
@@ -430,82 +522,129 @@ const CustomFeed = () => {
       <h1 className="text-2xl font-bold mb-6">Your Feed</h1>
       
       {/* Create Post Form */}
-      <div className="bg-white rounded-lg shadow p-4 mb-6">
-        <div className="flex items-start mb-3">
-          <img 
-            src={user?.profilePicture || "/default-avatar.jpg"} 
-            alt={user?.username || "You"} 
-            className="h-10 w-10 rounded-full object-cover mr-3"
-          />
-          <form onSubmit={handlePostSubmit} className="w-full">
-            <textarea
-              className="w-full p-2 border border-gray-300 rounded-md"
-              placeholder="What's on your mind?"
-              rows="3"
-              value={newPostContent}
-              onChange={(e) => setNewPostContent(e.target.value)}
-            ></textarea>
-            
-            {/* Image Preview */}
-            {imagePreview && (
-              <div className="mt-2 relative">
-                <img 
-                  src={imagePreview} 
-                  alt="Preview" 
-                  className="w-full max-h-64 object-contain rounded-md"
-                />
-                <button
-                  type="button"
-                  onClick={removeImage}
-                  className="absolute top-2 right-2 bg-gray-800 bg-opacity-70 text-white rounded-full p-1 hover:bg-opacity-100"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
-                </button>
-              </div>
-            )}
-            
-            <div className="flex justify-between items-center mt-2">
-              <div>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleImageChange}
-                  className="hidden"
-                  accept="image/*"
-                />
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center text-gray-600 bg-gray-100 px-3 py-1.5 rounded-md hover:bg-gray-200"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  Add Image
-                </button>
-              </div>
-              <button
-                type="submit"
-                disabled={uploading || (!newPostContent.trim() && !postImage)}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {uploading ? 
-                  <span className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Uploading...
-                  </span> : 
-                  "Post"
-                }
-              </button>
-            </div>
-          </form>
+  {isGuestMode ? (
+    <div className="bg-white rounded-lg shadow p-4 mb-6">
+      <div className="flex items-start">
+        <img 
+          src={user?.profilePicture || "/guest-avatar.jpg"} 
+          alt={user?.username || "Guest"} 
+          className="h-10 w-10 rounded-full object-cover mr-3"
+        />
+        <div 
+          className="w-full p-2 border border-gray-300 rounded-md bg-gray-50 cursor-not-allowed" 
+          onClick={() => {
+            setPromptAction("create posts");
+            setShowGuestPrompt(true);
+          }}
+        >
+          <p className="text-gray-500">What's on your mind?</p>
         </div>
       </div>
+      <div className="flex justify-between items-center mt-2">
+        <div className="opacity-50 cursor-not-allowed">
+          <button 
+            className="flex items-center text-gray-600 bg-gray-100 px-3 py-1.5 rounded-md"
+            onClick={(e) => {
+              e.preventDefault();
+              setPromptAction("create posts");
+              setShowGuestPrompt(true);
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Add Image
+          </button>
+        </div>
+        <button
+          onClick={() => {
+            setPromptAction("create posts");
+            setShowGuestPrompt(true);
+          }}
+          className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+        >
+          Create Account to Post
+        </button>
+      </div>
+    </div>
+  ) : (
+    <div className="bg-white rounded-lg shadow p-4 mb-6">
+      <div className="flex items-start mb-3">
+        <img 
+          src={user?.profilePicture || "/default-avatar.jpg"} 
+          alt={user?.username || "You"} 
+          className="h-10 w-10 rounded-full object-cover mr-3"
+        />
+        <form onSubmit={handlePostSubmit} className="w-full">
+          <textarea
+            className="w-full p-2 border border-gray-300 rounded-md"
+            placeholder="What's on your mind?"
+            rows="3"
+            value={newPostContent}
+            onChange={(e) => setNewPostContent(e.target.value)}
+          ></textarea>
+          
+          {/* Image Preview */}
+          {imagePreview && (
+            <div className="mt-2 relative">
+              <img 
+                src={imagePreview} 
+                alt="Preview" 
+                className="w-full max-h-64 object-contain rounded-md"
+              />
+              <button
+                type="button"
+                onClick={removeImage}
+                className="absolute top-2 right-2 bg-gray-800 bg-opacity-70 text-white rounded-full p-1 hover:bg-opacity-100"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          )}
+          
+          <div className="flex justify-between items-center mt-2">
+            <div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImageChange}
+                className="hidden"
+                accept="image/*"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center text-gray-600 bg-gray-100 px-3 py-1.5 rounded-md hover:bg-gray-200"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Add Image
+              </button>
+            </div>
+            <button
+              type="submit"
+              disabled={uploading || (!newPostContent.trim() && !postImage)}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {uploading ? 
+                <span className="flex items-center">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Uploading...
+                </span> : 
+                "Post"
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
       
       {/* Posts List */}
       {loading ? (
@@ -523,6 +662,12 @@ const CustomFeed = () => {
           </div>
         )
       )}
+      {/* Guest Prompt Modal */}
+      <GuestPrompt 
+        isOpen={showGuestPrompt} 
+        onClose={() => setShowGuestPrompt(false)}
+        action={promptAction}
+      />
     </div>
   );
 };

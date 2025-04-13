@@ -2,12 +2,15 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { formatCommentWithMentions, findUserByUsernameAndNavigate } from "../utils/MentionUtils";
+import GuestPrompt from "./GuestPrompt";
 
-export default function CommentItem({ comment: initialComment, postId, onCommentUpdate, onReply }) {
+export default function CommentItem({ comment: initialComment, postId, onCommentUpdate, onReply, isGuestMode }) {
   const { token, user } = useAuth();
   const [isLiking, setIsLiking] = useState(false);
   const [localLikes, setLocalLikes] = useState(initialComment.likes || []);
   const [isLiked, setIsLiked] = useState(false);
+  const [showGuestPrompt, setShowGuestPrompt] = useState(false);
+  const [promptAction, setPromptAction] = useState("");
   const navigate = useNavigate();
   
   // Initialize component state when comment changes
@@ -31,6 +34,12 @@ export default function CommentItem({ comment: initialComment, postId, onComment
   
   // Handle like/unlike
   const handleLike = async () => {
+    if (isGuestMode) {
+      setPromptAction("like comments");
+      setShowGuestPrompt(true);
+      return;
+    }
+    
     if (isLiking || !user) return;
     
     setIsLiking(true);
@@ -79,6 +88,12 @@ export default function CommentItem({ comment: initialComment, postId, onComment
 
   // Handle reply click
   const handleReply = () => {
+    if (isGuestMode) {
+      setPromptAction("reply to comments");
+      setShowGuestPrompt(true);
+      return;
+    }
+    
     if (onReply) {
       onReply(initialComment);
     }
@@ -154,6 +169,13 @@ export default function CommentItem({ comment: initialComment, postId, onComment
           </button>
         </div>
       </div>
+      
+      {/* Guest Prompt Modal */}
+      <GuestPrompt 
+        isOpen={showGuestPrompt} 
+        onClose={() => setShowGuestPrompt(false)}
+        action={promptAction}
+      />
     </div>
   );
 }

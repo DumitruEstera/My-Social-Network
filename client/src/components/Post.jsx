@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import CommentItem from "./CommentItem";
 import PostMenu from "./PostMenu";
+import GuestPrompt from "./GuestPrompt"; // Import the new component
 
 export default function Post({ post: initialPost, onPostDeleted }) {
   const [post, setPost] = useState(initialPost);
@@ -11,7 +12,9 @@ export default function Post({ post: initialPost, onPostDeleted }) {
   const [newComment, setNewComment] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState("");
-  const { token, user } = useAuth();
+  const [showGuestPrompt, setShowGuestPrompt] = useState(false);
+  const [promptAction, setPromptAction] = useState("");
+  const { token, user, isGuestMode, isGenuineUser } = useAuth();
   const commentInputRef = useRef(null);
   const editTextareaRef = useRef(null);
 
@@ -31,6 +34,12 @@ export default function Post({ post: initialPost, onPostDeleted }) {
 
   // Handle like
   const handleLike = async () => {
+    if (isGuestMode) {
+      setPromptAction("like posts");
+      setShowGuestPrompt(true);
+      return;
+    }
+    
     try {
       const response = await fetch(`http://localhost:5050/posts/${post._id}/like`, {
         method: "POST",
@@ -76,6 +85,12 @@ export default function Post({ post: initialPost, onPostDeleted }) {
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     
+    if (isGuestMode) {
+      setPromptAction("comment on posts");
+      setShowGuestPrompt(true);
+      return;
+    }
+    
     if (!newComment.trim()) return;
     
     try {
@@ -109,6 +124,12 @@ export default function Post({ post: initialPost, onPostDeleted }) {
 
   // Handle reply to a comment
   const handleReplyToComment = (commentToReply) => {
+    if (isGuestMode) {
+      setPromptAction("reply to comments");
+      setShowGuestPrompt(true);
+      return;
+    }
+    
     if (!commentToReply || !commentToReply.author) return;
     
     // Set comment input to include the @username tag
@@ -181,6 +202,17 @@ export default function Post({ post: initialPost, onPostDeleted }) {
     setEditedContent("");
   };
 
+  // Show comment input when user clicks on comment button
+  const handleCommentClick = () => {
+    if (isGuestMode) {
+      setPromptAction("comment on posts");
+      setShowGuestPrompt(true);
+      return;
+    }
+    
+    setShowComments(!showComments);
+  };
+
   return (
     <div className="bg-white p-4 rounded-lg shadow">
       {/* Post Header */}
@@ -199,12 +231,14 @@ export default function Post({ post: initialPost, onPostDeleted }) {
           </div>
         </div>
         
-        {/* Post Menu (three dots) */}
-        <PostMenu 
-          post={post} 
-          onPostDeleted={handlePostDeleted} 
-          onEditPost={handleEditPost}
-        />
+        {/* Post Menu (three dots) - Only show for the post author and not in guest mode */}
+        {isGenuineUser && user?._id === post.author?._id && (
+          <PostMenu 
+            post={post} 
+            onPostDeleted={handlePostDeleted} 
+            onEditPost={handleEditPost}
+          />
+        )}
       </div>
       
       {/* Post Content */}
@@ -265,7 +299,7 @@ export default function Post({ post: initialPost, onPostDeleted }) {
           <span className={`${isLiked ? 'font-bold' : ''}`}>Like</span>
         </button>
         <button 
-          onClick={() => setShowComments(!showComments)}
+          onClick={handleCommentClick}
           className="flex-1 flex items-center justify-center py-1 text-gray-500 hover:bg-gray-50 rounded"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -278,23 +312,41 @@ export default function Post({ post: initialPost, onPostDeleted }) {
       {/* Comments Section */}
       {showComments && (
         <div>
-          {/* Comment Form */}
-          <form onSubmit={handleCommentSubmit} className="flex mb-3">
-            <input
-              type="text"
-              placeholder="Write a comment..."
-              className="flex-1 p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-indigo-600"
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              ref={commentInputRef}
-            />
-            <button
-              type="submit"
-              className="px-3 bg-indigo-600 text-white rounded-r-md hover:bg-indigo-700 focus:outline-none focus:ring-1 focus:ring-indigo-600"
-            >
-              Post
-            </button>
-          </form>
+          {/* Comment Form - Only show for logged in users */}
+          {!isGuestMode && (
+            <form onSubmit={handleCommentSubmit} className="flex mb-3">
+              <input
+                type="text"
+                placeholder="Write a comment..."
+                className="flex-1 p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                ref={commentInputRef}
+              />
+              <button
+                type="submit"
+                className="px-3 bg-indigo-600 text-white rounded-r-md hover:bg-indigo-700 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+              >
+                Post
+              </button>
+            </form>
+          )}
+          
+          {/* Guest Comment Message - Only show for guest users */}
+          {isGuestMode && (
+            <div className="bg-gray-50 text-gray-700 p-3 mb-3 rounded-md border border-gray-200 flex items-center justify-between">
+              <span>Sign in to add a comment</span>
+              <button
+                onClick={() => {
+                  setPromptAction("comment on posts");
+                  setShowGuestPrompt(true);
+                }}
+                className="text-indigo-600 font-medium hover:text-indigo-800"
+              >
+                Create Account
+              </button>
+            </div>
+          )}
           
           {/* Comments List */}
           <div className="space-y-2">
@@ -306,6 +358,7 @@ export default function Post({ post: initialPost, onPostDeleted }) {
                   postId={post._id}
                   onCommentUpdate={handleCommentUpdate}
                   onReply={handleReplyToComment}
+                  isGuestMode={isGuestMode}
                 />
               ))
             ) : (
@@ -314,6 +367,13 @@ export default function Post({ post: initialPost, onPostDeleted }) {
           </div>
         </div>
       )}
+      
+      {/* Guest Prompt Modal */}
+      <GuestPrompt 
+        isOpen={showGuestPrompt} 
+        onClose={() => setShowGuestPrompt(false)}
+        action={promptAction}
+      />
     </div>
   );
 }

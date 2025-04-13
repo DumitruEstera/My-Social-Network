@@ -2,7 +2,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function ProtectedRoute({ children }) {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, isGuestMode, loading } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -14,8 +14,9 @@ export default function ProtectedRoute({ children }) {
     );
   }
 
-  if (!isAuthenticated) {
-    // Redirect to login page if not authenticated
+  // Allow access if user is authenticated or in guest mode
+  if (!isAuthenticated && !isGuestMode) {
+    // Redirect to login page if not authenticated and not in guest mode
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

@@ -3,21 +3,36 @@ import * as ReactDOM from "react-dom/client";
 import {
   createBrowserRouter,
   RouterProvider,
+  Navigate,
+  useLocation
 } from "react-router-dom";
 import App from "./App";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Feed from "./components/Feed";
-import CustomProfile from "./components/Profile"; // Make sure this matches the export name
+import CustomProfile from "./components/Profile";
 import Search from "./components/Search";
 import Settings from "./components/Settings";
 import ProtectedRoute from "./components/ProtectedRoute";
-import AdminRoute from "./components/AdminRoute"; // Import the new AdminRoute component
-import AdminPanel from "./components/AdminPanel"; // Import the AdminPanel component
-import { AuthProvider } from "./context/AuthContext";
+import AdminRoute from "./components/AdminRoute";
+import AdminPanel from "./components/AdminPanel";
+import { AuthProvider, useAuth } from "./context/AuthContext"; // Make sure to import useAuth here
 import { NotificationProvider } from "./context/NotificationContext";
 import SinglePost from "./components/SinglePost";
 import "./index.css";
+
+// This component needs to be defined after the useAuth import
+function RequiresAuthOrGuest({ children }) {
+  const { isAuthenticated, isGuestMode } = useAuth();
+  const location = useLocation();
+
+  if (!isAuthenticated && !isGuestMode) {
+    // If not authenticated and not in guest mode, redirect to login
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+}
 
 const router = createBrowserRouter([
   {
@@ -27,9 +42,9 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: (
-          <ProtectedRoute>
+          <RequiresAuthOrGuest>
             <Feed />
-          </ProtectedRoute>
+          </RequiresAuthOrGuest>
         ),
       },
       {

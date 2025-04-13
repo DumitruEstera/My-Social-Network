@@ -12,7 +12,7 @@ export default function Register() {
   const [formError, setFormError] = useState("");
   
   const navigate = useNavigate();
-  const { register, error, loading } = useAuth();
+  const { register, error, loading, enableGuestMode } = useAuth();
 
   const handleChange = (e) => {
     setFormData({
@@ -51,6 +51,11 @@ export default function Register() {
     if (success) {
       navigate("/");
     }
+  };
+
+  const handleGuestMode = () => {
+    enableGuestMode();
+    navigate("/");
   };
 
   return (
@@ -154,6 +159,20 @@ export default function Register() {
             </button>
           </div>
         </form>
+
+        {/* Guest Mode Button */}
+        <div className="mt-4">
+          <button
+            onClick={handleGuestMode}
+            className="flex w-full justify-center rounded-md bg-gray-100 px-3 py-1.5 text-sm font-semibold leading-6 text-gray-900 shadow-sm hover:bg-gray-200 border border-gray-300"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            Continue as Guest
+          </button>
+        </div>
 
         <p className="mt-10 text-center text-sm text-slate-500">
           Already have an account?{' '}
