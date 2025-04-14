@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import FollowerNetwork from './FollowerNetwork';
+import ReportsManagement from './ReportsManagement'
 
 export default function AdminPanel() {
   const { token } = useAuth();
@@ -10,6 +11,7 @@ export default function AdminPanel() {
   const [stats, setStats] = useState(null);
   const [followerStats, setFollowerStats] = useState(null);
   const [excessivePosters, setExcessivePosters] = useState([]);
+  const [reportsCount, setReportsCount] = useState({ pending: 0, total: 0 }); // Add reports count state
   const [loading, setLoading] = useState(false);
   const [loadingPosters, setLoadingPosters] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
@@ -17,12 +19,13 @@ export default function AdminPanel() {
   const [statusMessage, setStatusMessage] = useState('');
   const [activeTab, setActiveTab] = useState('users');
 
-  // Fetch initial stats and data
-  useEffect(() => {
-    fetchStats();
-    fetchUsers();
-    fetchFollowerStats();
-  }, [token]);
+    // Fetch initial stats and data
+    useEffect(() => {
+      fetchStats();
+      fetchUsers();
+      fetchFollowerStats();
+      fetchReportsCounts(); // Add this function call
+    }, [token]);
 
   // Fetch admin stats
   const fetchStats = async () => {
@@ -68,6 +71,39 @@ export default function AdminPanel() {
       setLoading(false);
     }
   };
+
+  // Fetch reports counts - new function
+  const fetchReportsCounts = async () => {
+    try {
+      // Fetch pending reports count
+      const pendingResponse = await fetch('http://localhost:5050/reports?status=pending', {
+        headers: {
+          'x-auth-token': token
+        }
+      });
+
+      // Fetch all reports
+      const allResponse = await fetch('http://localhost:5050/reports', {
+        headers: {
+          'x-auth-token': token
+        }
+      });
+
+      if (!pendingResponse.ok || !allResponse.ok) {
+        throw new Error('Failed to fetch reports counts');
+      }
+
+      const pendingData = await pendingResponse.json();
+      const allData = await allResponse.json();
+
+      setReportsCount({
+        pending: pendingData.length,
+        total: allData.length
+      });
+    } catch (err) {
+      console.error('Error fetching reports counts:', err);
+    }
+  };
   
   // Fetch excessive posters (spam users)
   const fetchExcessivePosters = async () => {
@@ -95,8 +131,8 @@ export default function AdminPanel() {
     }
   };
 
-  // Fetch users (recent users if no search query)
-  const fetchUsers = async (query = '') => {
+   // Fetch users (recent users if no search query)
+   const fetchUsers = async (query = '') => {
     setLoading(true);
     setError('');
     
@@ -233,6 +269,17 @@ export default function AdminPanel() {
             <h3 className="text-lg font-semibold text-gray-700 mb-1">New Users (7d)</h3>
             <p className="text-3xl font-bold text-blue-600">{stats.newUsers}</p>
           </div>
+          {/* New card for reports */}
+          <div 
+            className="bg-white rounded-xl shadow-md p-5 border border-amber-50 transition duration-300 hover:shadow-lg cursor-pointer"
+            onClick={() => setActiveTab('reports')}
+          >
+            <h3 className="text-lg font-semibold text-gray-700 mb-1">Reports</h3>
+            <p className="text-3xl font-bold text-yellow-600">{reportsCount.pending}</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {reportsCount.pending} pending of {reportsCount.total} total
+            </p>
+          </div>
         </div>
       )}
       
@@ -247,6 +294,20 @@ export default function AdminPanel() {
           }`}
         >
           User Management
+        </button>
+        <button
+          onClick={() => setActiveTab('reports')}
+          className={`py-3 px-6 font-medium ${
+            activeTab === 'reports'
+              ? 'text-orange-900 border-b-2 border-orange-900'
+              : 'text-gray-600 hover:text-orange-900 transition'
+          }`}
+        >
+          Reports {reportsCount.pending > 0 && (
+            <span className="ml-2 bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full">
+              {reportsCount.pending}
+            </span>
+          )}
         </button>
         <button
           onClick={() => setActiveTab('excessive-posters')}
@@ -414,6 +475,11 @@ export default function AdminPanel() {
             </table>
           </div>
         </div>
+      )}
+
+      {/* Reports Management Tab - New! */}
+      {activeTab === 'reports' && (
+        <ReportsManagement />
       )}
       
       {/* Spam Detection Tab */}
