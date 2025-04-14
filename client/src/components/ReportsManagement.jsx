@@ -80,6 +80,40 @@ export default function ReportsManagement() {
     }
   };
 
+  // New function to handle post deletion
+  const handleDeletePost = async (postId) => {
+    if (!window.confirm("Are you sure you want to delete this post? This action cannot be undone.")) {
+      return;
+    }
+    
+    setUpdatingStatus(true);
+    try {
+      const response = await fetch(`http://localhost:5050/admin/posts/${postId}`, {
+        method: 'DELETE',
+        headers: {
+          'x-auth-token': token
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete post');
+      }
+
+      // Show success message
+      alert('Post deleted successfully');
+      
+      // Refresh reports list
+      fetchReports();
+      // Close the details view
+      closeReportDetails();
+    } catch (err) {
+      console.error('Error deleting post:', err);
+      alert('Failed to delete post. Please try again.');
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
   // Format date
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -434,6 +468,18 @@ export default function ReportsManagement() {
 
               {/* Action buttons */}
               <div className="flex flex-wrap gap-3 justify-center">
+                {/* New Delete Post Button */}
+                <button
+                  onClick={() => handleDeletePost(activeReport.postId)}
+                  disabled={updatingStatus}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition disabled:opacity-50 flex items-center"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Delete Post
+                </button>
+                
                 {activeReport.status === 'pending' && (
                   <>
                     <button

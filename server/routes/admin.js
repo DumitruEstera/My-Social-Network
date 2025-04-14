@@ -2,6 +2,7 @@ import express from "express";
 import { ObjectId } from "mongodb";
 import db from "../db/connection.js";
 import { adminAuth } from "../middleware/auth.js";
+import { findPostById } from "../models/post.js";
 
 const router = express.Router();
 
@@ -247,6 +248,34 @@ router.get("/excessive-posters", async (req, res) => {
     res.json(filteredResults);
   } catch (err) {
     console.error(err);
+    res.status(500).json({ msg: "Server error" });
+  }
+});
+
+// Delete a post (admin only)
+router.delete("/posts/:id", async (req, res) => {
+  try {
+    // Check if post exists
+    const post = await findPostById(db, req.params.id);
+    
+    if (!post) {
+      return res.status(404).json({ msg: "Post not found" });
+    }
+    
+    // Delete the post
+    const collection = await db.collection("posts");
+    await collection.deleteOne({ _id: new ObjectId(req.params.id) });
+    
+    // Update any reports related to this post
+    const reportsCollection = await db.collection("reports");
+    await reportsCollection.updateMany(
+      { postId: new ObjectId(req.params.id) },
+      { $set: { status: "resolved", adminNotes: "Post has been deleted by admin" } }
+    );
+    
+    res.json({ success: true, msg: "Post deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting post:", err);
     res.status(500).json({ msg: "Server error" });
   }
 });
