@@ -15,10 +15,6 @@ export const uploadImage = async (imagePath) => {
     // Upload the image
     const result = await cloudinary.uploader.upload(imagePath, {
       folder: 'profile_pictures',
-      // You can add transformations here if needed
-      transformation: [
-        { width: 300, height: 300, crop: 'fill' }
-      ]
     });
     
     return {
