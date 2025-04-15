@@ -2,12 +2,12 @@
 import express from "express";
 import { ObjectId } from "mongodb";
 import db from "../db/connection.js";
-import { findUserById } from "../models/user.js";
 import upload from "../middleware/upload.js";
 import { uploadImage } from "../utils/cloudinary.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { findUserById, findUserByUsername } from "../models/user.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -302,6 +302,51 @@ router.get("/username/:username", async (req, res) => {
     
     // Remove password from response
     const { password, ...userWithoutPassword } = user;
+    
+    res.json(userWithoutPassword);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Server error" });
+  }
+});
+
+router.patch("/:id/username", async (req, res) => {
+  try {
+    // Check if user exists
+    const user = await findUserById(db, req.params.id);
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+    
+    // Check if authorized (only update own username)
+    if (req.user.id !== req.params.id) {
+      return res.status(401).json({ msg: "Not authorized" });
+    }
+    
+    const { username } = req.body;
+    
+    if (!username) {
+      return res.status(400).json({ msg: "Username is required" });
+    }
+    
+    // Check if username already exists
+    const existingUser = await findUserByUsername(db, username);
+    if (existingUser && existingUser._id.toString() !== req.params.id) {
+      return res.status(400).json({ msg: "Username already taken" });
+    }
+    
+    // Update username
+    const collection = await db.collection("users");
+    await collection.updateOne(
+      { _id: new ObjectId(req.params.id) },
+      { $set: { username } }
+    );
+    
+    // Get updated user
+    const updatedUser = await findUserById(db, req.params.id);
+    
+    // Remove password from response
+    const { password, ...userWithoutPassword } = updatedUser;
     
     res.json(userWithoutPassword);
   } catch (err) {

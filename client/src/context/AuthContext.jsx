@@ -200,22 +200,33 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const value = {
-    user,
-    token,
-    loading,
-    error,
-    isGuestMode,
-    register,
-    login,
-    logout,
-    enableGuestMode,
-    disableGuestMode,
-    changePassword,
-    isAuthenticated: !!token || isGuestMode,
-    isGenuineUser: !!token && !isGuestMode,
-    isAdmin: user?.isAdmin || false
+  const updateUser = (updatedUserData) => {
+    setUser(prevUser => {
+      if (!prevUser) return prevUser;
+      return {
+        ...prevUser,
+        ...updatedUserData
+      };
+    });
   };
+
+  const value = {
+  user,
+  token,
+  loading,
+  error,
+  isGuestMode,
+  register,
+  login,
+  logout,
+  enableGuestMode,
+  disableGuestMode,
+  changePassword,
+  updateUser, // Add this
+  isAuthenticated: !!token || isGuestMode,
+  isGenuineUser: !!token && !isGuestMode,
+  isAdmin: user?.isAdmin || false
+};
 
   return (
     <AuthContext.Provider value={value}>
