@@ -1,22 +1,25 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import PostMenu from "./PostMenu";
 
 export default function PhotoGallery({ posts, onPostDeleted }) {
   const [activePhoto, setActivePhoto] = useState(null);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState("");
   const navigate = useNavigate();
   const { token } = useAuth();
   const editTextareaRef = useRef(null);
+  const modalRef = useRef(null);
   
-  // Filter posts to include only those with images - do this inline without useState/useEffect
+  // Filter posts to include only those with images
   const postsWithImages = posts.filter(post => post.image);
   
   // Open modal with larger image
-  const openPhotoModal = (post) => {
+  const openPhotoModal = (post, index) => {
     setActivePhoto(post);
+    setCurrentPhotoIndex(index);
     // Reset editing state when opening a new photo
     setIsEditing(false);
     setEditedContent("");
@@ -28,6 +31,45 @@ export default function PhotoGallery({ posts, onPostDeleted }) {
     setIsEditing(false);
     setEditedContent("");
   };
+
+  // Navigation functions
+  const goToPreviousPhoto = (e) => {
+    if (e) e.stopPropagation();
+    const newIndex = (currentPhotoIndex - 1 + postsWithImages.length) % postsWithImages.length;
+    setCurrentPhotoIndex(newIndex);
+    setActivePhoto(postsWithImages[newIndex]);
+    setIsEditing(false);
+    setEditedContent("");
+  };
+
+  const goToNextPhoto = (e) => {
+    if (e) e.stopPropagation();
+    const newIndex = (currentPhotoIndex + 1) % postsWithImages.length;
+    setCurrentPhotoIndex(newIndex);
+    setActivePhoto(postsWithImages[newIndex]);
+    setIsEditing(false);
+    setEditedContent("");
+  };
+
+  // Keyboard navigation for slideshow
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!activePhoto) return;
+      
+      if (e.key === "ArrowLeft") {
+        goToPreviousPhoto();
+      } else if (e.key === "ArrowRight") {
+        goToNextPhoto();
+      } else if (e.key === "Escape") {
+        closePhotoModal();
+      }
+    };
+    
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [activePhoto, currentPhotoIndex]);
   
   // Handle post deletion
   const handlePostDeleted = (postId) => {
@@ -121,11 +163,11 @@ export default function PhotoGallery({ posts, onPostDeleted }) {
     <>
       {/* Photo Gallery Grid */}
       <div className="grid grid-cols-3 gap-1 md:gap-2">
-        {postsWithImages.map((post) => (
+        {postsWithImages.map((post, index) => (
           <div 
             key={post._id} 
             className="aspect-square overflow-hidden bg-gray-100 relative group border border-amber-50 rounded-md"
-            onClick={() => openPhotoModal(post)}
+            onClick={() => openPhotoModal(post, index)}
           >
             <img 
               src={post.image} 
@@ -152,9 +194,13 @@ export default function PhotoGallery({ posts, onPostDeleted }) {
         ))}
       </div>
       
-      {/* Photo Modal */}
+      {/* Photo Modal with Slideshow */}
       {activePhoto && (
-        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4" onClick={closePhotoModal}>
+        <div 
+          className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4" 
+          onClick={closePhotoModal}
+          ref={modalRef}
+        >
           <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl border border-amber-100" onClick={e => e.stopPropagation()}>
             {/* Modal Header */}
             <div className="flex items-center justify-between p-4 border-b border-amber-50">
@@ -196,13 +242,45 @@ export default function PhotoGallery({ posts, onPostDeleted }) {
               </div>
             </div>
             
-            {/* Image */}
-            <div className="flex-1 overflow-hidden flex items-center justify-center bg-gray-100">
+            {/* Image Container with Navigation Arrows */}
+            <div className="flex-1 overflow-hidden flex items-center justify-center bg-gray-100 relative">
               <img 
                 src={activePhoto.image} 
                 alt="Post" 
                 className="max-w-full max-h-[60vh] object-contain"
               />
+              
+              {/* Navigation Arrows - Only show if there's more than one image */}
+              {postsWithImages.length > 1 && (
+                <>
+                  {/* Left Arrow */}
+                  <button 
+                    onClick={goToPreviousPhoto}
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition focus:outline-none"
+                    aria-label="Previous photo"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  
+                  {/* Right Arrow */}
+                  <button 
+                    onClick={goToNextPhoto}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition focus:outline-none"
+                    aria-label="Next photo"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                  
+                  {/* Photo Counter */}
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
+                    {currentPhotoIndex + 1} / {postsWithImages.length}
+                  </div>
+                </>
+              )}
             </div>
             
             {/* Post Content */}
