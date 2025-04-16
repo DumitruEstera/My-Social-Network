@@ -97,9 +97,9 @@ export default function NotificationDropdown() {
         )}
       </button>
 
-      {/* Notification Dropdown */}
+      {/* Notification Dropdown - Updated for better mobile responsiveness */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl overflow-hidden z-20 border border-amber-100">
+        <div className="fixed md:absolute right-0 left-0 md:left-auto mt-2 mx-2 md:mx-0 md:w-80 w-auto bg-white rounded-xl shadow-xl overflow-hidden z-20 border border-amber-100">
           <div className="py-2">
             <div className="flex justify-between items-center px-4 py-3 border-b border-amber-50">
               <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
