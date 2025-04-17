@@ -7,7 +7,7 @@ const App = () => {
   const shouldShowNavbar = !hideNavbarPaths.includes(location.pathname);
 
   return (
-    <div className="w-full p-6">
+    <div className="w-full px-6 pb-6">
       {shouldShowNavbar && <Navbar />}
       <Outlet />
     </div>
