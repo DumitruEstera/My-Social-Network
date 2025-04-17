@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import NotificationDropdown from "./NotificationDropdown";
 
@@ -7,6 +7,14 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Clear search query when location changes and not on search page
+  useEffect(() => {
+    if (!location.pathname.includes('/search')) {
+      setSearchQuery("");
+    }
+  }, [location.pathname]);
 
   const handleLogout = () => {
     logout();
