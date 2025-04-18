@@ -344,27 +344,6 @@ export default function Settings() {
           </div>
         </form>
       </div>
-      
-      {/* Additional Account Settings Section (Keep existing) */}
-      <div className="bg-white rounded-xl shadow-md p-8 border border-amber-50">
-        <h2 className="text-xl font-semibold mb-2 text-gray-800">Account Information</h2>
-        <p className="text-gray-500 mb-4">These are your account details and preferences.</p>
-        
-        <div className="bg-amber-50 rounded-lg p-4 border border-amber-100">
-          <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-            <div>
-              <p className="text-sm text-gray-500">Want to update your profile information?</p>
-              <p className="text-gray-700 font-medium">Edit your bio, change profile picture, and more.</p>
-            </div>
-            <button 
-              onClick={() => navigate(`/profile/${user?._id}`)}
-              className="px-4 py-2 bg-orange-900 text-white rounded-lg hover:bg-yellow-600 transition text-sm"
-            >
-              Go to Profile
-            </button>
-          </div>
-        </div>
-      </div>
 
       {/* Guest Prompt Modal */}
       <GuestPrompt 
