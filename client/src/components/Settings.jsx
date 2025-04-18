@@ -4,26 +4,20 @@ import { useNavigate } from "react-router-dom";
 import GuestPrompt from "./GuestPrompt";
 
 export default function Settings() {
-  // Existing state for password changes
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-  
-  // New state for username changes
   const [currentUsername, setCurrentUsername] = useState("");
   const [newUsername, setNewUsername] = useState("");
   const [usernameError, setUsernameError] = useState("");
   const [usernameSuccess, setUsernameSuccess] = useState("");
   const [usernameLoading, setUsernameLoading] = useState(false);
-  
-  // Add state for guest prompt
   const [showGuestPrompt, setShowGuestPrompt] = useState(false);
   const [promptAction, setPromptAction] = useState("");
-  
-  const { user, token, changePassword, isGuestMode, updateUser } = useAuth(); // Add updateUser
+  const { user, token, changePassword, isGuestMode, updateUser } = useAuth();
   const navigate = useNavigate();
 
   // Set current username when user data loads
@@ -33,7 +27,7 @@ export default function Settings() {
     }
   }, [user]);
 
-  // Handle password change (existing function)
+  // Handle password change
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -84,7 +78,7 @@ export default function Settings() {
     }
   };
 
-  // New function to handle username change
+  // Handle username change
   const handleUsernameChange = async (e) => {
     e.preventDefault();
     
@@ -149,7 +143,7 @@ export default function Settings() {
         <p className="text-yellow-600 italic">Manage your account preferences and security</p>
       </div>
       
-      {/* Username Change Section - New */}
+      {/* Username Change Section */}
       <div className="bg-white rounded-xl shadow-md p-8 mb-6 border border-amber-50">
         <h2 className="text-xl font-semibold mb-6 text-gray-800">Change Username</h2>
         
@@ -239,7 +233,7 @@ export default function Settings() {
         </form>
       </div>
       
-      {/* Password Change Section (Existing) */}
+      {/* Password Change Section */}
       <div className="bg-white rounded-xl shadow-md p-8 mb-6 border border-amber-50">
         <h2 className="text-xl font-semibold mb-6 text-gray-800">Change Password</h2>
         

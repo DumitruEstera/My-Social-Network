@@ -1,18 +1,9 @@
-// src/utils/MentionUtils.js
-
-/**
- * Formats a comment text to highlight and make @mentions clickable
- * @param {string} text - The comment text
- * @param {Function} handleProfileClick - Function to handle profile clicks with username param
- * @returns {JSX.Element|string} - Formatted text with clickable @mentions
- */
+// This utility function formats a comment text to highlight mentions and make them clickable
 export const formatCommentWithMentions = (text, handleProfileClick) => {
   if (!text) return "";
   
-  // Regular expression to find @username mentions
-  // This regex matches @ followed by letters, numbers, or underscores
   const mentionRegex = /(@\w+)/g;
-  
+
   // Split the text by mentions
   const parts = text.split(mentionRegex);
   
@@ -48,12 +39,6 @@ export const formatCommentWithMentions = (text, handleProfileClick) => {
   return <>{renderedContent}</>;
 };
 
-/**
- * Find a user by username and navigate to their profile
- * @param {string} username - Username to search for
- * @param {string} token - Auth token
- * @param {Function} navigate - React Router navigate function
- */
 export const findUserByUsernameAndNavigate = async (username, token, navigate) => {
   try {
     // Try finding the exact username match using our new endpoint
@@ -92,8 +77,6 @@ export const findUserByUsernameAndNavigate = async (username, token, navigate) =
       }
     }
     
-    // If we got here, no exact match was found
-    // Redirect to search results instead
     navigate(`/search?q=${encodeURIComponent(username)}`);
     
   } catch (error) {

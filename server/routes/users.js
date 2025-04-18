@@ -1,4 +1,3 @@
-// server/routes/users.js
 import express from "express";
 import { ObjectId } from "mongodb";
 import db from "../db/connection.js";
@@ -23,7 +22,6 @@ router.get("/:id", async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
     
-    // Remove password from response
     const { password, ...userWithoutPassword } = user;
     
     res.json(userWithoutPassword);
@@ -40,7 +38,6 @@ router.post("/profilePicture", upload.single('image'), async (req, res) => {
       return res.status(400).json({ msg: "No file uploaded" });
     }
 
-    // Create uploads directory if it doesn't exist
     const uploadsDir = path.join(__dirname, '..', 'uploads');
     if (!fs.existsSync(uploadsDir)) {
       fs.mkdirSync(uploadsDir, { recursive: true });
@@ -58,13 +55,11 @@ router.post("/profilePicture", upload.single('image'), async (req, res) => {
       { $set: { profilePicture: imageResult.url } }
     );
     
-    // Delete temp file
     fs.unlinkSync(imagePath);
     
     // Get updated user
     const updatedUser = await findUserById(db, req.user.id);
     
-    // Remove password from response
     const { password, ...userWithoutPassword } = updatedUser;
     
     res.json({ 
@@ -80,13 +75,12 @@ router.post("/profilePicture", upload.single('image'), async (req, res) => {
 // Update user profile
 router.patch("/:id", async (req, res) => {
   try {
-    // Check if user exists
+
     const user = await findUserById(db, req.params.id);
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }
     
-    // Check if authorized (only update own profile)
     if (req.user.id !== req.params.id) {
       return res.status(401).json({ msg: "Not authorized" });
     }
@@ -111,7 +105,6 @@ router.patch("/:id", async (req, res) => {
     // Get updated user
     const updatedUser = await findUserById(db, req.params.id);
     
-    // Remove password from response
     const { password, ...userWithoutPassword } = updatedUser;
     
     res.json(userWithoutPassword);
@@ -228,7 +221,6 @@ router.get("/:id/followers", async (req, res) => {
       return res.json([]);
     }
     
-    // Convert string IDs to ObjectId if necessary
     const followerIds = followers.map(id => 
       typeof id === 'string' ? new ObjectId(id) : id
     );
@@ -300,7 +292,6 @@ router.get("/username/:username", async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
     
-    // Remove password from response
     const { password, ...userWithoutPassword } = user;
     
     res.json(userWithoutPassword);
@@ -345,7 +336,6 @@ router.patch("/:id/username", async (req, res) => {
     // Get updated user
     const updatedUser = await findUserById(db, req.params.id);
     
-    // Remove password from response
     const { password, ...userWithoutPassword } = updatedUser;
     
     res.json(userWithoutPassword);

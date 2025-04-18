@@ -87,8 +87,8 @@ export default function FollowerNetwork({ followerStats, loading }) {
       .style("position", "absolute")
       .style("visibility", "hidden")
       .style("background-color", "white")
-      .style("border", "1px solid rgb(251, 243, 219)") // amber-50
-      .style("border-radius", "0.75rem") // rounded-xl
+      .style("border", "1px solid rgb(251, 243, 219)") 
+      .style("border-radius", "0.75rem") 
       .style("padding", "12px")
       .style("box-shadow", "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)")
       .style("pointer-events", "none")
@@ -177,7 +177,6 @@ export default function FollowerNetwork({ followerStats, loading }) {
 
     // Node radius function
     function getNodeRadius(d) {
-      // Base size plus a factor based on follower count
       const baseSize = 7;
       const followerFactor = Math.sqrt(d.followerCount) * 2;
       return Math.max(baseSize, followerFactor);

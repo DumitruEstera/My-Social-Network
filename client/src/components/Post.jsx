@@ -113,7 +113,6 @@ export default function Post({ post: initialPost, onPostDeleted }) {
 
   // Handle comment update (e.g., when a comment is liked)
   const handleCommentUpdate = (updatedComment) => {
-    // Update the post state with the updated comment
     setPost(prevPost => ({
       ...prevPost,
       comments: prevPost.comments.map(comment => 
@@ -132,13 +131,10 @@ export default function Post({ post: initialPost, onPostDeleted }) {
     
     if (!commentToReply || !commentToReply.author) return;
     
-    // Set comment input to include the @username tag
     setNewComment(`@${commentToReply.author.username} `);
-    
-    // Ensure comments are visible
+
     setShowComments(true);
-    
-    // Focus the comment input
+
     setTimeout(() => {
       if (commentInputRef.current) {
         commentInputRef.current.focus();
@@ -158,7 +154,6 @@ export default function Post({ post: initialPost, onPostDeleted }) {
     setIsEditing(true);
     setEditedContent(post.content || "");
     
-    // Focus the textarea after a short delay to allow for rendering
     setTimeout(() => {
       if (editTextareaRef.current) {
         editTextareaRef.current.focus();
@@ -234,7 +229,7 @@ export default function Post({ post: initialPost, onPostDeleted }) {
           </div>
         </div>
         
-        {/* Post Menu (three dots) - Only show for the post author and not in guest mode */}
+        {/* Post Menu */}
         {isGenuineUser && user?._id === post.author?._id && (
           <PostMenu 
             post={post} 
@@ -278,7 +273,7 @@ export default function Post({ post: initialPost, onPostDeleted }) {
         )}
       </div>
       
-      {/* Post Image (if any) */}
+      {/* Post Image */}
       {post.image && (
         <div className="mb-4 rounded-lg overflow-hidden">
           <img 
@@ -334,7 +329,7 @@ export default function Post({ post: initialPost, onPostDeleted }) {
       {/* Comments Section */}
       {showComments && (
         <div>
-          {/* Comment Form - Only show for logged in users */}
+          {/* Comment Form */}
           {!isGuestMode && (
             <form onSubmit={handleCommentSubmit} className="flex mb-4">
               <input
@@ -354,7 +349,7 @@ export default function Post({ post: initialPost, onPostDeleted }) {
             </form>
           )}
           
-          {/* Guest Comment Message - Only show for guest users */}
+          {/* Guest Comment Message */}
           {isGuestMode && (
             <div className="bg-amber-50 text-gray-700 p-4 mb-4 rounded-lg border border-amber-100 flex items-center justify-between">
               <span className="text-gray-700">Sign in to add a comment</span>

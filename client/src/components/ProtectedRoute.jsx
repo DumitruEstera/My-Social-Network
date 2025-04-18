@@ -6,7 +6,6 @@ export default function ProtectedRoute({ children }) {
   const location = useLocation();
 
   if (loading) {
-    // Show loading indicator with the orange/amber color scheme
     return (
       <div className="flex justify-center items-center h-screen bg-amber-50">
         <div className="flex flex-col items-center">

@@ -49,11 +49,9 @@ export default function Navbar() {
 
   // Function to handle navigation and scroll to top
   const handleNavigation = (path) => {
-    // If we're already on this path, just scroll to top
     if (location.pathname === path) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      // Navigate to the path and then scroll to top
       navigate(path);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }

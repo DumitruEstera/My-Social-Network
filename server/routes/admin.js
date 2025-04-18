@@ -25,14 +25,12 @@ router.get("/users/search", async (req, res) => {
         ]
       }).toArray();
     } else {
-      // If no query, return most recent users (limit to 20)
       users = await collection.find()
         .sort({ created_at: -1 })
         .limit(20)
         .toArray();
     }
     
-    // Remove passwords from response
     const usersWithoutPasswords = users.map(user => {
       const { password, ...userWithoutPassword } = user;
       return userWithoutPassword;
@@ -110,7 +108,7 @@ router.get("/stats", async (req, res) => {
   }
 });
 
-// NEW ENDPOINT: Get follower statistics
+// Get follower statistics
 router.get("/follower-stats", async (req, res) => {
   try {
     const usersCollection = await db.collection("users");
@@ -240,7 +238,6 @@ router.get("/excessive-posters", async (req, res) => {
       };
     }));
     
-    // Filter out any null entries and sort by post count
     const filteredResults = results
       .filter(item => item !== null)
       .sort((a, b) => b.postCount - a.postCount);
@@ -252,7 +249,7 @@ router.get("/excessive-posters", async (req, res) => {
   }
 });
 
-// Delete a post (admin only)
+// Delete a post
 router.delete("/posts/:id", async (req, res) => {
   try {
     // Check if post exists

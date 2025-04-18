@@ -80,7 +80,7 @@ export default function ReportsManagement() {
     }
   };
 
-  // New function to handle post deletion
+  // Delete post function
   const handleDeletePost = async (postId) => {
     if (!window.confirm("Are you sure you want to delete this post? This action cannot be undone.")) {
       return;
@@ -127,7 +127,6 @@ export default function ReportsManagement() {
     });
   };
 
-  // Get status badge color
   const getStatusBadgeColor = (status) => {
     switch (status) {
       case 'pending':
@@ -143,7 +142,6 @@ export default function ReportsManagement() {
     }
   };
 
-  // Get reason badge color
   const getReasonBadgeColor = (reason) => {
     if (reason.includes('Harassment') || reason.includes('bullying')) {
       return 'bg-red-100 text-red-800';
@@ -468,7 +466,7 @@ export default function ReportsManagement() {
 
               {/* Action buttons */}
               <div className="flex flex-wrap gap-3 justify-center">
-                {/* New Delete Post Button */}
+                {/* Delete Post Button */}
                 <button
                   onClick={() => handleDeletePost(activeReport.postId)}
                   disabled={updatingStatus}

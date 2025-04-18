@@ -7,7 +7,7 @@ import GuestPrompt from "./GuestPrompt";
 export default function CommentItem({ 
   comment: initialComment, 
   postId, 
-  postAuthorId, // Add this prop to know who authored the post
+  postAuthorId,
   onCommentUpdate, 
   onReply, 
   isGuestMode, 
@@ -26,18 +26,15 @@ export default function CommentItem({
   
   // Initialize component state when comment changes
   useEffect(() => {
-    // Initialize likes array if it doesn't exist
     const commentLikes = initialComment.likes || [];
     setLocalLikes(commentLikes);
     
-    // Check if user has liked this comment
     if (user) {
       const liked = commentLikes.some(id => id === user._id);
       setIsLiked(liked);
     }
   }, [initialComment, user]);
 
-  // Handle click outside for delete confirmation
   useEffect(() => {
     function handleClickOutside(event) {
       if (deleteConfirmRef.current && !deleteConfirmRef.current.contains(event.target)) {

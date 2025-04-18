@@ -7,9 +7,6 @@ import { createUser, findUserByEmail, findUserById } from "../models/user.js";
 
 const router = express.Router();
 
-// @route   POST /auth/register
-// @desc    Register a user
-// @access  Public
 router.post("/register", async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -36,7 +33,6 @@ router.post("/register", async (req, res) => {
     // Save user to database
     const result = await createUser(db, userData);
     
-    // Get the created user
     user = await findUserById(db, result.insertedId);
 
     // Create and return JWT token
@@ -49,9 +45,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// @route   POST /auth/login
-// @desc    Authenticate user & get token
-// @access  Public
+
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -77,9 +71,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// @route   GET /auth/user
-// @desc    Get authenticated user
-// @access  Private
+
 router.get("/user", auth, async (req, res) => {
   try {
     const user = await findUserById(db, req.user.id);
@@ -94,9 +86,6 @@ router.get("/user", auth, async (req, res) => {
   }
 });
 
-// @route   POST /auth/change-password
-// @desc    Change user password
-// @access  Private
 router.post("/change-password", auth, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;

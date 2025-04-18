@@ -8,7 +8,6 @@ export default function GuestPrompt({ isOpen, onClose, action }) {
     setVisible(isOpen);
   }, [isOpen]);
 
-  // Close the modal with a slight delay for animation
   const handleClose = () => {
     setVisible(false);
     setTimeout(() => {

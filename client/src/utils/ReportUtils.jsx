@@ -1,6 +1,4 @@
-/**
- * Report reasons for standardization across the application
- */
+
 export const REPORT_REASONS = [
     "Inappropriate content",
     "Harassment or bullying",
@@ -12,9 +10,6 @@ export const REPORT_REASONS = [
     "Other"
   ];
   
-  /**
-   * Report status values
-   */
   export const REPORT_STATUS = {
     PENDING: "pending",
     REVIEWED: "reviewed",
@@ -22,11 +17,6 @@ export const REPORT_REASONS = [
     DISMISSED: "dismissed"
   };
   
-  /**
-   * Get a human-readable description of a report status
-   * @param {string} status - The report status
-   * @returns {string} Human-readable status description
-   */
   export const getReportStatusDescription = (status) => {
     switch (status) {
       case REPORT_STATUS.PENDING:
@@ -42,11 +32,7 @@ export const REPORT_REASONS = [
     }
   };
   
-  /**
-   * Get the appropriate CSS class for a status badge
-   * @param {string} status - The report status
-   * @returns {string} CSS class for the badge
-   */
+
   export const getStatusBadgeClass = (status) => {
     switch (status) {
       case REPORT_STATUS.PENDING:
@@ -62,11 +48,7 @@ export const REPORT_REASONS = [
     }
   };
   
-  /**
-   * Get the appropriate CSS class for a reason badge
-   * @param {string} reason - The report reason
-   * @returns {string} CSS class for the badge
-   */
+
   export const getReasonBadgeClass = (reason) => {
     if (reason.includes('Harassment') || reason.includes('bullying')) {
       return 'bg-red-100 text-red-800';

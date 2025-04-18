@@ -14,7 +14,7 @@ import { findUserById } from "../models/user.js";
 
 const router = express.Router();
 
-// Submit a report (requires authentication)
+// Submit a report 
 router.post("/", auth, async (req, res) => {
   try {
     const { postId, reason, description } = req.body;

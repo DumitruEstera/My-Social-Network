@@ -6,7 +6,6 @@ export default function AdminRoute({ children }) {
   const location = useLocation();
 
   if (loading) {
-    // Show loading indicator with the orange/amber color scheme
     return (
       <div className="flex justify-center items-center h-screen bg-amber-50">
         <div className="flex flex-col items-center">
@@ -18,12 +17,10 @@ export default function AdminRoute({ children }) {
   }
 
   if (!isAuthenticated) {
-    // Redirect to login page if not authenticated
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   if (!isAdmin) {
-    // Redirect to home page if authenticated but not admin
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 

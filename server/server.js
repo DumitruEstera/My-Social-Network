@@ -5,7 +5,7 @@ import posts from "./routes/posts.js";
 import users from "./routes/users.js";
 import admin from "./routes/admin.js"; 
 import notifications from "./routes/notifications.js";
-import reports from "./routes/reports.js"; // Add this import
+import reports from "./routes/reports.js"; 
 import { auth as authMiddleware } from "./middleware/auth.js";
 import dotenv from "dotenv";
 
@@ -25,7 +25,7 @@ app.use("/auth", auth);
 app.use("/posts", authMiddleware, posts);
 app.use("/users", authMiddleware, users);
 app.use("/notifications", authMiddleware, notifications);
-app.use("/reports", authMiddleware, reports); // Add this line
+app.use("/reports", authMiddleware, reports); 
 app.use("/admin", admin);
 
 // start the Express server

@@ -12,7 +12,7 @@ export default function SinglePost() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState("");
   const { token, user } = useAuth();
-  const { id } = useParams(); // Get post ID from URL
+  const { id } = useParams(); 
   const navigate = useNavigate();
   const commentInputRef = useRef(null);
   const editTextareaRef = useRef(null);
@@ -109,7 +109,7 @@ export default function SinglePost() {
     }
   };
 
-  // Update a comment in the post state after it's been modified (e.g. liked)
+  // Update a comment in the post state after it's been modified 
   const handleCommentUpdate = (updatedComment) => {
     if (!post || !post.comments) return;
     
@@ -123,10 +123,8 @@ export default function SinglePost() {
     }));
   };
 
-  // First, add this new function after handleCommentUpdate
   const handleCommentDelete = async (commentId) => {
     try {
-      // Remove the comment from the post state immediately for a responsive UI
       setPost(prevPost => {
         if (!prevPost || !prevPost.comments) return prevPost;
         
@@ -147,7 +145,6 @@ export default function SinglePost() {
     // Set comment input to include the @username tag
     setComment(`@${commentToReply.author.username} `);
     
-    // Focus the comment input
     if (commentInputRef.current) {
       commentInputRef.current.focus();
     }
@@ -158,7 +155,6 @@ export default function SinglePost() {
     setIsEditing(true);
     setEditedContent(post.content || "");
     
-    // Focus the textarea after a short delay to allow for rendering
     setTimeout(() => {
       if (editTextareaRef.current) {
         editTextareaRef.current.focus();
@@ -269,7 +265,7 @@ export default function SinglePost() {
             </div>
           </div>
           
-          {/* Add Post Menu */}
+          {/* Post Menu */}
           <PostMenu 
             post={post} 
             onPostDeleted={() => navigate('/', { replace: true })}
@@ -372,7 +368,7 @@ export default function SinglePost() {
               Comments
             </h3>
             
-            {/* Add Comment Form */}
+            {/* Comment Form */}
             <form 
               onSubmit={handleCommentSubmit} 
               className="flex mb-5"

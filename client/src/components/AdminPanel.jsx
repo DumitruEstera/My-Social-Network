@@ -11,7 +11,7 @@ export default function AdminPanel() {
   const [stats, setStats] = useState(null);
   const [followerStats, setFollowerStats] = useState(null);
   const [excessivePosters, setExcessivePosters] = useState([]);
-  const [reportsCount, setReportsCount] = useState({ pending: 0, total: 0 }); // Add reports count state
+  const [reportsCount, setReportsCount] = useState({ pending: 0, total: 0 }); 
   const [loading, setLoading] = useState(false);
   const [loadingPosters, setLoadingPosters] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
@@ -24,7 +24,7 @@ export default function AdminPanel() {
       fetchStats();
       fetchUsers();
       fetchFollowerStats();
-      fetchReportsCounts(); // Add this function call
+      fetchReportsCounts(); 
     }, [token]);
 
   // Fetch admin stats
@@ -72,7 +72,7 @@ export default function AdminPanel() {
     }
   };
 
-  // Fetch reports counts - new function
+  // Fetch reports counts
   const fetchReportsCounts = async () => {
     try {
       // Fetch pending reports count
@@ -131,7 +131,7 @@ export default function AdminPanel() {
     }
   };
 
-   // Fetch users (recent users if no search query)
+   // Fetch users 
    const fetchUsers = async (query = '') => {
     setLoading(true);
     setError('');
@@ -189,7 +189,6 @@ export default function AdminPanel() {
         user._id === userId ? { ...user, blocked: data.blocked } : user
       ));
       
-      // If we have excessive posters and one of them is updated
       if (excessivePosters.length > 0) {
         setExcessivePosters(excessivePosters.map(item => 
           item.user._id === userId 
@@ -198,7 +197,6 @@ export default function AdminPanel() {
         ));
       }
       
-      // Set success message
       setStatusMessage(`User ${data.blocked ? 'blocked' : 'unblocked'} successfully`);
       
       // Refresh stats
@@ -269,7 +267,7 @@ export default function AdminPanel() {
             <h3 className="text-lg font-semibold text-gray-700 mb-1">New Users (7d)</h3>
             <p className="text-3xl font-bold text-blue-600">{stats.newUsers}</p>
           </div>
-          {/* New card for reports */}
+          {/* Card for reports */}
           <div 
             className="bg-white rounded-xl shadow-md p-5 border border-amber-50 transition duration-300 hover:shadow-lg cursor-pointer"
             onClick={() => setActiveTab('reports')}
@@ -477,7 +475,7 @@ export default function AdminPanel() {
         </div>
       )}
 
-      {/* Reports Management Tab - New! */}
+      {/* Reports Management Tab */}
       {activeTab === 'reports' && (
         <ReportsManagement />
       )}

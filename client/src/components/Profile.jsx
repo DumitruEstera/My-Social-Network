@@ -94,15 +94,15 @@ export default function CustomProfile() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalType, setModalType] = useState(""); // "followers" or "following"
-  const [activeTab, setActiveTab] = useState("posts"); // "posts" or "photos"
+  const [modalType, setModalType] = useState(""); 
+  const [activeTab, setActiveTab] = useState("posts"); 
   
   // Add state for guest prompt
   const [showGuestPrompt, setShowGuestPrompt] = useState(false);
   const [promptAction, setPromptAction] = useState("");
   
   const fileInputRef = useRef(null);
-  const { user, token, isGuestMode } = useAuth(); // Include isGuestMode
+  const { user, token, isGuestMode } = useAuth(); 
   const { id } = useParams();
   
   const userId = id || user?._id;
@@ -112,7 +112,6 @@ export default function CustomProfile() {
   useEffect(() => {
     async function fetchProfileData() {
       if (isGuestMode) {
-        // Use sample data for guest mode
         setProfileData(SAMPLE_GUEST_PROFILE);
         setBio(SAMPLE_GUEST_PROFILE.bio || "");
         return;
@@ -141,7 +140,6 @@ export default function CustomProfile() {
 
     async function fetchUserPosts() {
       if (isGuestMode) {
-        // Use sample posts for guest mode
         setPosts(SAMPLE_GUEST_POSTS);
         setLoading(false);
         return;
@@ -408,7 +406,6 @@ export default function CustomProfile() {
     const commentInputRef = useRef(null);
     const editTextareaRef = useRef(null);
     
-    // Function to update a comment in the posts state
     const handleCommentUpdate = (updatedComment) => {
       setPosts(prevPosts => 
         prevPosts.map(p => {
@@ -434,13 +431,10 @@ export default function CustomProfile() {
       
       if (!commentToReply || !commentToReply.author) return;
       
-      // Set comment input to include the @username tag
       setComment(`@${commentToReply.author.username} `);
       
-      // Ensure comments are visible
       setShowComments(true);
       
-      // Focus the comment input
       setTimeout(() => {
         if (commentInputRef.current) {
           commentInputRef.current.focus();
@@ -476,7 +470,6 @@ export default function CustomProfile() {
       setIsEditing(true);
       setEditedContent(post.content || "");
       
-      // Focus the textarea after a short delay
       setTimeout(() => {
         if (editTextareaRef.current) {
           editTextareaRef.current.focus();
@@ -743,7 +736,6 @@ export default function CustomProfile() {
     }
   );
 
-  // Calculate photo count for tab badge
   const photoCount = posts.filter(post => post.image).length;
 
   return (

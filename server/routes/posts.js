@@ -13,8 +13,7 @@ const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Get feed posts (posts from users the current user follows)
-// In server/routes/posts.js
+// Get feed posts
 router.get("/", async (req, res) => {
   try {
     // Get current user
@@ -38,7 +37,6 @@ router.get("/", async (req, res) => {
         post.author = authorWithoutPassword;
       }
       
-      // Add this section to populate comment authors
       if (post.comments && post.comments.length > 0) {
         const populatedComments = await Promise.all(post.comments.map(async (comment) => {
           const commentAuthor = await findUserById(db, comment.author);
@@ -63,7 +61,6 @@ router.get("/", async (req, res) => {
 });
 
 // Upload post image
-// Place this route before other post routes
 router.post("/upload-image", upload.single('image'), async (req, res) => {
   try {
     if (!req.file) {
@@ -81,7 +78,6 @@ router.post("/upload-image", upload.single('image'), async (req, res) => {
     // Upload to Cloudinary
     const imageResult = await uploadImage(imagePath);
     
-    // Delete temp file
     fs.unlinkSync(imagePath);
     
     res.json({ 
@@ -111,11 +107,9 @@ router.post("/", async (req, res) => {
     
     const result = await createPost(db, postData);
     
-    // Get the created post with author info
     const post = await findPostById(db, result.insertedId);
     const author = await findUserById(db, post.author);
     
-    // Remove password from author info
     if (author) {
       const { password, ...authorWithoutPassword } = author;
       post.author = authorWithoutPassword;
@@ -129,7 +123,6 @@ router.post("/", async (req, res) => {
 });
 
 // Get posts by user ID
-// In server/routes/posts.js - for the user profile endpoint
 router.get("/user/:userId", async (req, res) => {
   try {
     const posts = await findPostsByUser(db, req.params.userId);
@@ -143,7 +136,6 @@ router.get("/user/:userId", async (req, res) => {
         post.author = authorWithoutPassword;
       }
       
-      // Add this section to populate comment authors
       if (post.comments && post.comments.length > 0) {
         const populatedComments = await Promise.all(post.comments.map(async (comment) => {
           const commentAuthor = await findUserById(db, comment.author);
@@ -170,23 +162,20 @@ router.get("/user/:userId", async (req, res) => {
 // Like/unlike a post
 router.post("/:id/like", async (req, res) => {
   try {
-    // Get the post before the like operation to check if it's already liked
     const postBefore = await findPostById(db, req.params.id);
     
     if (!postBefore) {
       return res.status(404).json({ msg: "Post not found" });
     }
     
-    // Check if user has already liked this post
     const userObjectId = new ObjectId(req.user.id);
     const isAlreadyLiked = postBefore.likes.some(id => id.equals(userObjectId));
     
     // Perform the like/unlike operation
     const post = await likePost(db, req.params.id, req.user.id);
     
-    // If this is a new like (not an unlike) and the post is not by the current user
     if (!isAlreadyLiked && !postBefore.author.equals(userObjectId)) {
-      // Get the current user for their username
+
       const currentUser = await findUserById(db, req.user.id);
       
       // Create a notification for the post owner
@@ -210,7 +199,6 @@ router.post("/:id/like", async (req, res) => {
   }
 });
 
-// Add comment to a post
 // Add comment to a post
 router.post("/:id/comment", async (req, res) => {
   try {
@@ -244,7 +232,7 @@ router.post("/:id/comment", async (req, res) => {
     
     // Create notification if the post is not by the commenter
     if (!post.author.equals(new ObjectId(req.user.id))) {
-      // Get the current user for their username
+      
       const currentUser = await findUserById(db, req.user.id);
       
       // Create a notification for the post owner
@@ -342,19 +330,19 @@ router.post("/:postId/comments/:commentId/like", async (req, res) => {
     const collection = await db.collection("posts");
     
     if (isLiked) {
-      // Unlike - remove user ID from likes array
+      // Unlike 
       await collection.updateOne(
         { _id: new ObjectId(req.params.postId) },
         { $pull: { [`comments.${commentIndex}.likes`]: userObjectId } }
       );
     } else {
-      // Like - add user ID to likes array
+      // Like 
       await collection.updateOne(
         { _id: new ObjectId(req.params.postId) },
         { $addToSet: { [`comments.${commentIndex}.likes`]: userObjectId } }
       );
       
-      // Create notification if comment is not by the current user
+      // Create notification if the comment is not by the user liking it
       if (!comment.author.equals(userObjectId)) {
         const currentUser = await findUserById(db, req.user.id);
         const notificationCollection = await db.collection("notifications");
@@ -381,7 +369,6 @@ router.post("/:postId/comments/:commentId/like", async (req, res) => {
     // Get comment author info
     const author = await findUserById(db, updatedComment.author);
     
-    // Populate author info and remove password
     let populatedComment = { ...updatedComment };
     if (author) {
       const { password, ...authorWithoutPassword } = author;
@@ -503,8 +490,6 @@ router.delete("/:postId/comments/:commentId", async (req, res) => {
     
     const comment = post.comments[commentIndex];
     
-    // Check if user is authorized to delete the comment
-    // User can delete if they are the comment author or post author
     const isCommentAuthor = comment.author.toString() === req.user.id;
     const isPostAuthor = post.author.toString() === req.user.id;
     

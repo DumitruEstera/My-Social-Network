@@ -1,20 +1,18 @@
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import ReportModal from "./ReportModal"; // Import the new component
+import ReportModal from "./ReportModal"; 
 
 export default function PostMenu({ post, onPostDeleted, onEditPost }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isReportModalOpen, setIsReportModalOpen] = useState(false); // Add state for report modal
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false); 
   const menuRef = useRef(null);
   const { token, user } = useAuth();
   const navigate = useNavigate();
   
-  // Check if the current user is the author of the post
   const isAuthor = user && post.author && 
     (post.author._id === user._id || post.author === user._id);
   
-  // Close menu when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -48,12 +46,10 @@ export default function PostMenu({ post, onPostDeleted, onEditPost }) {
       // Close the menu
       setIsMenuOpen(false);
       
-      // Call the callback to update UI
       if (onPostDeleted) {
         onPostDeleted(post._id);
       }
       
-      // If we're on the single post page, navigate back to the feed
       if (window.location.pathname === `/post/${post._id}`) {
         navigate("/");
       }
@@ -67,13 +63,12 @@ export default function PostMenu({ post, onPostDeleted, onEditPost }) {
     // Close the menu
     setIsMenuOpen(false);
     
-    // Call the callback to start editing
     if (onEditPost) {
       onEditPost(post);
     }
   };
   
-  // Add handler for reporting posts
+
   const handleReportPost = () => {
     setIsMenuOpen(false);
     setIsReportModalOpen(true);

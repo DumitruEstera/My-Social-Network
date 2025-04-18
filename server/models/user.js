@@ -1,8 +1,6 @@
 import { ObjectId } from "mongodb";
 
-// User schema for MongoDB (conceptual)
-// Fields: username, email, password (hashed), created_at
-// Update UserSchema to include social network fields
+// User schema for MongoDB 
 export const UserSchema = {
   username: String,
   email: String,
@@ -12,7 +10,7 @@ export const UserSchema = {
   bio: String,
   followers: Array,
   following: Array,
-  isAdmin: Boolean // Added isAdmin field
+  isAdmin: Boolean 
 };
 
 // Helper functions for user operations
@@ -23,7 +21,7 @@ export const createUser = async (db, userData) => {
     created_at: new Date(),
     followers: [],
     following: [],
-    isAdmin: userData.isAdmin || false // Default to false if not provided
+    isAdmin: userData.isAdmin || false 
   };
   return await collection.insertOne(newUser);
 };
@@ -38,7 +36,6 @@ export const findUserById = async (db, id) => {
   return await collection.findOne({ _id: new ObjectId(id) });
 };
 
-// New function to find a user by username (case-insensitive exact match)
 export const findUserByUsername = async (db, username) => {
   const collection = await db.collection("users");
   return await collection.findOne({ 

@@ -52,7 +52,6 @@ export default function ReportModal({ isOpen, onClose, postId, postAuthor }) {
       }
       
       setSuccess(true);
-      // Reset form after 3 seconds and close modal
       setTimeout(() => {
         setReason("");
         setDescription("");

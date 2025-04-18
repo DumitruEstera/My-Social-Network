@@ -91,7 +91,6 @@ export default function PhotoGallery({ posts, onPostDeleted }) {
     setIsEditing(true);
     setEditedContent(activePhoto.content || "");
     
-    // Focus the textarea after a short delay
     setTimeout(() => {
       if (editTextareaRef.current) {
         editTextareaRef.current.focus();
@@ -125,8 +124,6 @@ export default function PhotoGallery({ posts, onPostDeleted }) {
       
       // Update the post in the parent component if needed
       if (onPostDeleted) {
-        // We're using onPostDeleted as a signal to the parent component that 
-        // the posts list needs to be refreshed, even though we're not deleting
         onPostDeleted();
       }
     } catch (error) {
@@ -223,7 +220,7 @@ export default function PhotoGallery({ posts, onPostDeleted }) {
               </div>
               
               <div className="flex items-center">
-                {/* Add Post Menu with Edit functionality */}
+                {/* Post Menu */}
                 <PostMenu 
                   post={activePhoto} 
                   onPostDeleted={handlePostDeleted}
@@ -250,7 +247,7 @@ export default function PhotoGallery({ posts, onPostDeleted }) {
                 className="max-w-full max-h-[60vh] object-contain"
               />
               
-              {/* Navigation Arrows - Only show if there's more than one image */}
+              {/* Navigation Arrows */}
               {postsWithImages.length > 1 && (
                 <>
                   {/* Left Arrow */}

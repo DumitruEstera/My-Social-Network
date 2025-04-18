@@ -98,7 +98,6 @@ const CustomFeed = () => {
 
   useEffect(() => {
     if (isGuestMode) {
-      // For guest mode, use sample posts
       setPosts(SAMPLE_POSTS);
       setLoading(false);
     } else {
@@ -208,7 +207,7 @@ const CustomFeed = () => {
       
       if (postImage) {
         imageUrl = await uploadImage();
-        if (!imageUrl && !newPostContent.trim()) return; // If image upload failed and no text
+        if (!imageUrl && !newPostContent.trim()) return; 
       }
       
       const response = await fetch('http://localhost:5050/posts', {
@@ -295,7 +294,7 @@ const CustomFeed = () => {
     const commentInputRef = useRef(null);
     const editTextareaRef = useRef(null);
     
-    // Function to update a comment in the posts state
+    // Handle comment update
     const handleCommentUpdate = (updatedComment) => {
       setPosts(prevPosts => 
         prevPosts.map(p => {
@@ -315,13 +314,10 @@ const CustomFeed = () => {
     const handleReplyToComment = (commentToReply) => {
       if (!commentToReply || !commentToReply.author) return;
       
-      // Set comment input to include the @username tag
       setComment(`@${commentToReply.author.username} `);
       
-      // Ensure comments are visible
       setShowComments(true);
       
-      // Focus the comment input
       setTimeout(() => {
         if (commentInputRef.current) {
           commentInputRef.current.focus();
@@ -346,12 +342,10 @@ const CustomFeed = () => {
       }
     };
 
-    // Start editing the post
     const handleEditPost = () => {
       setIsEditing(true);
       setEditedContent(post.content || "");
       
-      // Focus the textarea after a short delay
       setTimeout(() => {
         if (editTextareaRef.current) {
           editTextareaRef.current.focus();
@@ -545,7 +539,7 @@ const CustomFeed = () => {
                   key={comment._id}
                   comment={comment}
                   postId={post._id}
-                  postAuthorId={post.author?._id} // Add this prop
+                  postAuthorId={post.author?._id} 
                   onCommentUpdate={handleCommentUpdate}
                   onCommentDelete={handleCommentDelete}
                   onReply={handleReplyToComment}

@@ -16,18 +16,17 @@ import Settings from "./components/Settings";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import AdminPanel from "./components/AdminPanel";
-import { AuthProvider, useAuth } from "./context/AuthContext"; // Make sure to import useAuth here
+import { AuthProvider, useAuth } from "./context/AuthContext"; 
 import { NotificationProvider } from "./context/NotificationContext";
 import SinglePost from "./components/SinglePost";
 import "./index.css";
 
-// This component needs to be defined after the useAuth import
+
 function RequiresAuthOrGuest({ children }) {
   const { isAuthenticated, isGuestMode } = useAuth();
   const location = useLocation();
 
   if (!isAuthenticated && !isGuestMode) {
-    // If not authenticated and not in guest mode, redirect to login
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
@@ -47,7 +46,6 @@ function RequiresAuth({ children }) {
   }
 
   if (!isAuthenticated) {
-    // If not authenticated, redirect to login
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

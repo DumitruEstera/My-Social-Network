@@ -15,7 +15,6 @@ export function AuthProvider({ children }) {
   const [isGuestMode, setIsGuestMode] = useState(false);
 
   useEffect(() => {
-    // If there's a token in localStorage, try to get user data
     const loadUser = async () => {
       if (token) {
         try {
@@ -42,7 +41,7 @@ export function AuthProvider({ children }) {
               return;
             }
             
-            // Otherwise, just clear the token
+            // Clear the token
             localStorage.removeItem('token');
             setToken(null);
           }
@@ -62,7 +61,6 @@ export function AuthProvider({ children }) {
     setIsGuestMode(true);
     localStorage.setItem('guestMode', 'true');
     
-    // Create dummy guest user data
     setUser({
       _id: 'guest',
       username: 'Guest User',
@@ -222,7 +220,7 @@ export function AuthProvider({ children }) {
   enableGuestMode,
   disableGuestMode,
   changePassword,
-  updateUser, // Add this
+  updateUser, 
   isAuthenticated: !!token || isGuestMode,
   isGenuineUser: !!token && !isGuestMode,
   isAdmin: user?.isAdmin || false

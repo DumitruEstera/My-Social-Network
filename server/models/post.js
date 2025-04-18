@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 
-// Post schema for MongoDB (conceptual)
+// Post schema for MongoDB
 export const PostSchema = {
   content: String,
   author: ObjectId,
@@ -77,7 +77,7 @@ export const addComment = async (db, postId, commentData) => {
   const comment = {
     ...commentData,
     _id: new ObjectId(),
-    likes: [],  // Make sure likes array is initialized
+    likes: [],  
     createdAt: new Date()
   };
   
@@ -89,7 +89,6 @@ export const addComment = async (db, postId, commentData) => {
   return comment;
 };
 
-// Add new function to like/unlike a comment
 export const likeComment = async (db, postId, commentId, userId) => {
   const collection = await db.collection("posts");
   const post = await findPostById(db, postId);
@@ -114,7 +113,7 @@ export const likeComment = async (db, postId, commentId, userId) => {
       }
     );
   } else {
-    // Like comment - first ensure likes array exists
+    // Like comment 
     if (!comment.likes) {
       await collection.updateOne(
         { 
@@ -127,7 +126,6 @@ export const likeComment = async (db, postId, commentId, userId) => {
       );
     }
     
-    // Then add the like
     await collection.updateOne(
       { 
         _id: new ObjectId(postId),
